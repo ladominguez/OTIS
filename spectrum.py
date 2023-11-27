@@ -51,6 +51,7 @@ def main():
             Aspec = np.log10(spec_down)
         
     np.savetxt('Aspec.txt', Aspec, fmt='%8.3f')
+    np.savetxt('spec.txt', spec_down, fmt='%8.3f')
     np.savetxt('freq.txt', freq_down, fmt='%8.3f')
     #ax.grid(True, which='both')
     #fig.savefig('fig.png')
