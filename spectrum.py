@@ -7,7 +7,8 @@ from utils import downsample_array
 
 npts = 2**16
 input_file = 'data/caig/caig.HHZ.sac'
-
+T_min = 0.5
+T_max = 10
 
 def main():
 
@@ -18,13 +19,6 @@ def main():
     win = delta * (npts - 1)
     trim = sac.copy()
     trim.trim(starttime=sac[0].stats.starttime, endtime=sac[0].stats.starttime + span_sec)
-
-    print(f"Start Time: {sac[0].stats.starttime}")
-    print(f"End Time: {sac[0].stats.endtime}")
-    print(f"Delta: {delta} s.")
-    print(f"npts: {npts}")
-    print(f"Win size: {win} s.")
-    print(f"Span: {span_sec} s.")
 
     Aspec = np.array([])
     fig, ax = plt.subplots(1, 1, figsize=(10, 6))
@@ -37,22 +31,38 @@ def main():
         if window.stats.npts > npts:
             data = data[:npts]
 
-        spec, freq, jackknife, _, _ = mtspec(data=data, delta=delta, time_bandwidth=3.5,
+        if not k:
+            spec, freq, jackknife, _, _ = mtspec(data=data, delta=delta, time_bandwidth=3.5,
                                             number_of_tapers=5, nfft=npts, statistics=True)
+        else:
+            spec, freq, jackknife, _, _ = mtspec(data=data, delta=delta, time_bandwidth=3.5,
+                                            number_of_tapers=5, nfft=npts, statistics=True)
+            
         freq = np.delete(freq, 0)
         spec = np.delete(spec, 0)
+        T    = 1/freq
+        ind = np.where((T >= T_min) & (T <= T_max))[0]
 
-        freq_down = downsample_array(freq,len(freq)//100)
-        spec_down = downsample_array(spec,len(freq)//100)
+        #freq_down = downsample_array(freq,len(freq)//100)
+        #spec_down = downsample_array(spec,len(freq)//100)
+        print('Type: ', type(ind))
+        T_down = T[ind]
+        freq_down = freq[ind]
+        spec_down = spec[ind]
+
         if k:
             Aspec = np.vstack([Aspec, np.log10(spec_down)])
-            break
         else:
             Aspec = np.log10(spec_down)
-        
-    np.savetxt('Aspec.txt', Aspec, fmt='%8.3f')
+
+        if k == 20:
+             break
+    
+    
+
+    np.savetxt('freq.txt', freq, fmt='%8.3f')
+    np.savetxt('Aspec20.txt', Aspec, fmt='%8.3f')
     np.savetxt('spec.txt', spec_down, fmt='%8.3f')
-    np.savetxt('freq.txt', freq_down, fmt='%8.3f')
     #ax.grid(True, which='both')
     #fig.savefig('fig.png')
 
