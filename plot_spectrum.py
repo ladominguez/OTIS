@@ -24,7 +24,7 @@ def main(freq, amp):
                         np.ceil(np.max(freq))], projection="X6i/4i", frame=True)
     color_table = create_color_table(amp)
     print(color_table)
-    for k, row in enumerate(tqdm(amp)):
+    for k, row in tqdm(enumerate(amp)):
         t = np.zeros(row.shape) + k + 1
         # make pen same color as fill
         fig.plot(
@@ -39,10 +39,11 @@ def main(freq, amp):
 
 if __name__ == "__main__":
     freq = np.loadtxt('freq.txt')
-    amp = np.loadtxt('Aspec.txt')
+    T = np.loadtxt('T.txt')
+    amp = np.loadtxt('Aspec20.txt')
     # Clipping amp for values larger than -1
     np.clip(amp, -1, None, out=amp)
     # get the next ower 10^n power of the min value of freq
 
-    main(freq, amp)
+    main(T, amp)
 

@@ -9,6 +9,7 @@ npts = 2**16
 input_file = 'data/caig/caig.HHZ.sac'
 T_min = 0.5
 T_max = 10
+overlap = 1.0
 
 def main():
 
@@ -25,7 +26,7 @@ def main():
 
     j = 0
 
-    for k, window in tqdm(enumerate(trim[0].slide(window_length=win, step=win / 2)),
+    for k, window in tqdm(enumerate(trim[0].slide(window_length=win, step=win*overlap)),
                           total=int(np.round(span_sec * 2 / win))):
         data = window.data
         if window.stats.npts > npts:
@@ -45,7 +46,6 @@ def main():
 
         #freq_down = downsample_array(freq,len(freq)//100)
         #spec_down = downsample_array(spec,len(freq)//100)
-        print('Type: ', type(ind))
         T_down = T[ind]
         freq_down = freq[ind]
         spec_down = spec[ind]
@@ -55,12 +55,11 @@ def main():
         else:
             Aspec = np.log10(spec_down)
 
-        if k == 20:
-             break
     
     
 
-    np.savetxt('freq.txt', freq, fmt='%8.3f')
+    np.savetxt('freq.txt', freq_down, fmt='%8.3f')
+    np.savetxt('T.txt', T_down, fmt='%8.3f')
     np.savetxt('Aspec20.txt', Aspec, fmt='%8.3f')
     np.savetxt('spec.txt', spec_down, fmt='%8.3f')
     #ax.grid(True, which='both')
