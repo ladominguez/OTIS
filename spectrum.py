@@ -6,7 +6,7 @@ from tqdm import tqdm
 from utils import downsample_array
 
 npts = 2**16
-input_file = 'data/caig/caig.HHZ.sac'
+input_file = 'data/caig/caig.HHN.sac'
 T_min = 0.5
 T_max = 10
 overlap = 1.0
