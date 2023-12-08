@@ -22,7 +22,7 @@ def main():
     trim.trim(starttime=sac[0].stats.starttime, endtime=sac[0].stats.starttime + span_sec)
 
     Aspec = np.array([])
-    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+    #fig, ax = plt.subplots(1, 1, figsize=(10, 6))
 
     j = 0
 

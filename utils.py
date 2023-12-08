@@ -1,4 +1,8 @@
+from mtspec import mtspec
 import numpy as np
+
+T_min = 0.5
+T_max = 10
 
 def downsample_array(arr, factor):
     """
@@ -25,9 +29,10 @@ def downsample_array(arr, factor):
 
     return downsampled_arr
 
-def get_spectrum(data):
-    delta = round(sac[0].stats.delta * 100) / 100
-    span_sec = sac[0].stats.endtime - sac[0].stats.starttime
+def get_spectrum(data, npts):
+    #npts = 2**16
+    delta = round(data.stats.delta * 100) / 100
+    span_sec = data.stats.endtime - data.stats.starttime
 
     win = delta * (npts - 1)
     
@@ -39,7 +44,12 @@ def get_spectrum(data):
 
     T    = 1/freq
     ind = np.where((T >= T_min) & (T <= T_max))[0]
+
+    T_down = T[ind]
+    freq_down = freq[ind]
+    spec_down = spec[ind]
+
     Aspec = np.log10(spec_down)
 
-    time = sac[0].stats.starttime + (sac[0].stats.endtime - sac[0].stats.starttime)
+    time = data.stats.starttime + (data.stats.endtime - data.stats.starttime)
     return time, spec
