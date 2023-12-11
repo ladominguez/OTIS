@@ -29,6 +29,14 @@ def downsample_array(arr, factor):
 
     return downsampled_arr
 
+def save_times2file(times, filename='times.txt'):
+    date_strings = [t.strftime("%Y-%m-%d %H:%M:%S") for t in times]
+    with open(file_path, "w") as file:
+    for date_string in date_strings:
+        file.write(f"{date_string}\n")
+
+
+
 def get_spectrum(data, npts):
     #npts = 2**16
     delta = round(data.stats.delta * 100) / 100
