@@ -2,7 +2,7 @@ import numpy as np
 from obspy.core import read
 from matplotlib import pyplot as plt
 from tqdm import tqdm
-from utils import downsample_array, get_spectrum
+from utils import downsample_array, get_spectrum, plot_spectrum
 from pympler import asizeof
 import time
 import multiprocessing as mp
@@ -23,7 +23,7 @@ def get_windows(stream, win):
     sub_windows = [window for window  in stream[0].slide(window_length=win, step=win*overlap)]
     return sub_windows
 
-def main():
+def get_spectrum_parallel_processing(cores=6):
     print('Reading ' + input_file + ' ...')
     sac = read(input_file)
     delta = round(sac[0].stats.delta * 100) / 100
@@ -35,7 +35,7 @@ def main():
 
     t0 = time.time()
 
-    with mp.Pool(processes = 6) as pool:
+    with mp.Pool(processes = cores) as pool:
         results = list(pool.starmap(get_spectrum, inputs))
     t1 = time.time()
 
@@ -44,7 +44,6 @@ def main():
 
 
 if __name__ == '__main__':
-    results = main()
-    for result in results:
-        t, _ = result
-        print('t: ', t)
+    results = get_spectrum_parallel_processing()
+    plot_spectrum(results) 
+    #save_times2file(times)

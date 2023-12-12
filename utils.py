@@ -1,4 +1,5 @@
 from mtspec import mtspec
+import pygmt
 import numpy as np
 
 T_min = 0.5
@@ -31,11 +32,38 @@ def downsample_array(arr, factor):
 
 def save_times2file(times, filename='times.txt'):
     date_strings = [t.strftime("%Y-%m-%d %H:%M:%S") for t in times]
-    with open(file_path, "w") as file:
-    for date_string in date_strings:
-        file.write(f"{date_string}\n")
+    with open(filename, "w") as file:
+        for date_string in date_strings:
+            file.write(f"{date_string}\n")
+    return None
 
+def plot_spectrum(results):
+    times = [result[0] for result in results]
+    spectrum = [result[1] for result in results]
+    Aspec_max = max(max(spec) for spec in spectrum)
+    print(Aspec_max)
 
+    fig = pygmt.Figure()
+    with pygmt.config(MAP_GRID_PEN_PRIMARY='3p,black,--',
+                      MAP_GRID_PEN_SECONDARY='3p,black,--',
+                      FONT_ANNOT_SECONDARY='12p,Palatino-Roman,black',
+                      FONT_ANNOT_PRIMARY='12p,Palatino-Roman,black',
+                      FONT_LABEL='12p,Palatino-Roman,black',
+                      FORMAT_CLOCK_MAP="hh:mm",
+                      FORMAT_DATE_MAP="o dd,yyyy",
+                      FORMAT_TIME_SECONDARY_MAP="abbreviated"):
+
+        fig.basemap(
+            projection="X12c/5c",
+            region=[
+                times.min(),
+                times.max(),
+                0,
+                6
+            ],
+            frame=["WSen", "sxa1D", "pxa6Hf1Hg1H+lTime",
+                   'sya1f0.5g0.5+lMagnitude']
+        )
 
 def get_spectrum(data, npts):
     #npts = 2**16
