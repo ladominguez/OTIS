@@ -56,14 +56,15 @@ def plot_spectrum(results):
         fig.basemap(
             projection="X12c/5c",
             region=[
-                times.min(),
-                times.max(),
+                np.min(np.array(times)),
+                np.max(np.array(times)),
                 0,
                 6
             ],
             frame=["WSen", "sxa1D", "pxa6Hf1Hg1H+lTime",
                    'sya1f0.5g0.5+lMagnitude']
         )
+    fig.savefig("spectrum.png", dpi=300)
 
 def get_spectrum(data, npts):
     #npts = 2**16
