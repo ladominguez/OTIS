@@ -5,9 +5,9 @@ import numpy as np
 T_min = 0.5
 T_max = 10
 # create a color table using the minimum and maximum values
-def create_color_table(min_value, max_value, cmap_name="matlab/hot"):
-    color_table = pygmt.makecpt(cmap_name="matlab/hot", series=[min_amp, max_amp], reverse=True)
-    return color_table
+#def create_color_table(min_value, max_value, cmap_name="matlab/hot"):
+#    color_table = pygmt.makecpt(cmap_name="matlab/hot", series=[min_amp, max_amp], reverse=True)
+#    return color_table
 
 
 def downsample_array(arr, factor):
@@ -48,7 +48,8 @@ def plot_spectrum(results):
     period = [result[2] for result in results]
     Aspec_max = max(max(spec) for spec in spectrum)
     Aspec_min = min(min(spec) for spec in spectrum)
-    color_table = pygmt.makecpt(cmap_name="matlab/hot", series=[Aspec_min, Aspec_max], reverse=True)
+    
+    pygmt.makecpt(cmap="hot", series=[Aspec_min, Aspec_max], reverse=True)
     fig = pygmt.Figure()
     with pygmt.config(MAP_GRID_PEN_PRIMARY='3p,black,--',
                       MAP_GRID_PEN_SECONDARY='3p,black,--',
@@ -68,16 +69,23 @@ def plot_spectrum(results):
                 T_max
             ],
             frame=["WSen", "sxa1D", "pxa6Hf1Hg1H+lTime",
-                   'sya1f0.5g0.5+lMagnitude']
+                   'sya1f0.5g0.5+lMagnitude'])
         for Tp, t_mean, spec in zip(period, times, spectrum):
-            # make pen same color as fill
-            fig.plot(
-                x=t_mean, y=period, fill=spectrum,
-                cmap=True, style="s0.1c", 
-                pen=None
-            )
+                # make pen same color as fill
+                xx=[t_mean.datetime for _ in range(len(Tp))] 
+                print('t_mean = ', t_mean)
+                print('len(Tp) = ', len(Tp))
+                print('len(spec) = ', len(spec))
+                print('len(xx) = ', len(xx))
+                fig.plot(
+                    x=xx, 
+                    y=Tp.tolist(), 
+                    fill=spectrum,
+                    cmap=True, style="s0.1c", 
+                    pen=None
+                )
 
-        )
+        
     fig.savefig("spectrum.png", dpi=300)
 
 def get_spectrum(data, npts):
