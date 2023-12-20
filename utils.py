@@ -1,8 +1,14 @@
 from mtspec import mtspec
+import pygmt
 import numpy as np
 
 T_min = 0.5
 T_max = 10
+# create a color table using the minimum and maximum values
+#def create_color_table(min_value, max_value, cmap_name="matlab/hot"):
+#    color_table = pygmt.makecpt(cmap_name="matlab/hot", series=[min_amp, max_amp], reverse=True)
+#    return color_table
+
 
 def downsample_array(arr, factor):
     """
@@ -29,6 +35,59 @@ def downsample_array(arr, factor):
 
     return downsampled_arr
 
+def save_times2file(times, filename='times.txt'):
+    date_strings = [t.strftime("%Y-%m-%d %H:%M:%S") for t in times]
+    with open(filename, "w") as file:
+        for date_string in date_strings:
+            file.write(f"{date_string}\n")
+    return None
+
+def plot_spectrum(results):
+    times = [result[0] for result in results]
+    spectrum = [result[1] for result in results]
+    period = [result[2] for result in results]
+    Aspec_max = max(max(spec) for spec in spectrum)
+    Aspec_min = min(min(spec) for spec in spectrum)
+    
+    pygmt.makecpt(cmap="hot", series=[Aspec_min, Aspec_max], reverse=True)
+    fig = pygmt.Figure()
+    with pygmt.config(MAP_GRID_PEN_PRIMARY='3p,black,--',
+                      MAP_GRID_PEN_SECONDARY='3p,black,--',
+                      FONT_ANNOT_SECONDARY='12p,Palatino-Roman,black',
+                      FONT_ANNOT_PRIMARY='12p,Palatino-Roman,black',
+                      FONT_LABEL='12p,Palatino-Roman,black',
+                      FORMAT_CLOCK_MAP="hh:mm",
+                      FORMAT_DATE_MAP="o dd,yyyy",
+                      FORMAT_TIME_SECONDARY_MAP="abbreviated"):
+
+        fig.basemap(
+            projection="X12c/5c",
+            region=[
+                np.min(np.array(times)).datetime,
+                np.max(np.array(times)).datetime,
+                T_min,
+                T_max
+            ],
+            frame=["WSen", "sxa1D", "pxa6Hf1Hg1H+lTime",
+                   'sya1f0.5g0.5+lMagnitude'])
+        for Tp, t_mean, spec in zip(period, times, spectrum):
+                # make pen same color as fill
+                xx=[t_mean.datetime for _ in range(len(Tp))] 
+                print('t_mean = ', t_mean)
+                print('len(Tp) = ', len(Tp))
+                print('len(spec) = ', len(spec))
+                print('len(xx) = ', len(xx))
+                fig.plot(
+                    x=xx, 
+                    y=Tp.tolist(), 
+                    fill=spec.tolist(),
+                    cmap=True, style="s0.1c", 
+                    pen=None
+                )
+
+        
+    fig.savefig("spectrum.png", dpi=300)
+
 def get_spectrum(data, npts):
     #npts = 2**16
     delta = round(data.stats.delta * 100) / 100
@@ -49,7 +108,8 @@ def get_spectrum(data, npts):
     freq_down = freq[ind]
     spec_down = spec[ind]
 
-    Aspec = np.log10(spec_down)
+    spec_down = np.log10(spec_down)
 
     time = data.stats.starttime + (data.stats.endtime - data.stats.starttime)
-    return time, spec
+    return time, spec_down, T_down
+
