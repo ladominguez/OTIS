@@ -63,8 +63,8 @@ def plot_spectrum(results):
         fig.basemap(
             projection="X12c/5c",
             region=[
-                np.min(np.array(times)),
-                np.max(np.array(times)),
+                np.min(np.array(times)).datetime,
+                np.max(np.array(times)).datetime,
                 T_min,
                 T_max
             ],
@@ -80,7 +80,7 @@ def plot_spectrum(results):
                 fig.plot(
                     x=xx, 
                     y=Tp.tolist(), 
-                    fill=spectrum,
+                    fill=spec.tolist(),
                     cmap=True, style="s0.1c", 
                     pen=None
                 )

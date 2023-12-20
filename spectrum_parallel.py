@@ -5,8 +5,9 @@ from tqdm import tqdm
 from utils import downsample_array, get_spectrum, plot_spectrum
 from pympler import asizeof
 import time
+from datetime import datetime
 import multiprocessing as mp
-
+import pickle
 
 
 npts = 2**16
@@ -42,8 +43,34 @@ def get_spectrum_parallel_processing(cores=6):
     print('Execution took {:.4f}'.format(t1 - t0))
     return results
 
+# Write a function that saves the output of the function get_spectrum_parallel_processing to a binary file sing pickle
+def save_spectrum2file(results):
+    times = [t.timestamp for t, _, _ in results]
+    min_time = datetime.utcfromtimestamp(min(times))
+    max_time = datetime.utcfromtimestamp(max(times))
+    min_time = min_time.strftime('%Y-%m-%d_%H:%M:%S')
+    max_time = max_time.strftime('%Y-%m-%d_%H:%M:%S')
+    print('min_time: ', min_time)
+    print('max_time: ', max_time)
+    with open('spectrum.pkl', 'wb') as f:
+        pickle.dump(results, f)
+    return None
+
+# Write a function that reads the output of the function get_spectrum_parallel_processing from a binary file sing pickle
+def read_spectrum2file(filename):
+    with open(filename, 'rb') as f:
+        results = pickle.load(f)
+    return results
+
+# Write a function to extract the minimum and maximum values of a list containing UTCDateTime objects
+def get_min_max_times(times):
+    min_time = min(times)
+    max_time = max(times)
+    return min_time, max_time
+
+
 
 if __name__ == '__main__':
     results = get_spectrum_parallel_processing()
-    plot_spectrum(results) 
+    save_spectrum2file(results) 
     #save_times2file(times)
