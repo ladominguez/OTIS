@@ -11,7 +11,7 @@ def create_color_table(amp):
     # Create a color table using the minimum and maximum values
     print('min_amp: ', min_amp)
     print('max_amp: ', max_amp)
-    color_table = pygmt.makecpt(cmap="matlab/hot", series=[min_amp, max_amp], reverse=True)
+    color_table = pygmt.makecpt(cmap="hot", series=[min_amp, max_amp], reverse=True)
     print(color_table)
     return color_table
 

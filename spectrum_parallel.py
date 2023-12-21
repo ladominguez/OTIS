@@ -1,12 +1,8 @@
 import numpy as np
-from obspy.core import read
 from matplotlib import pyplot as plt
 from tqdm import tqdm
-from utils import downsample_array, get_spectrum, plot_spectrum
-from pympler import asizeof
-import time
-import multiprocessing as mp
-
+from utils import *
+import pickle
 
 
 npts = 2**16
@@ -17,33 +13,10 @@ T_max = 10
 overlap = 1.0
 input_file = '/'.join(['data',station,'.'.join(['short',station,component,'sac'])])
 
-
-
-def get_windows(stream, win):
-    sub_windows = [window for window  in stream[0].slide(window_length=win, step=win*overlap)]
-    return sub_windows
-
-def get_spectrum_parallel_processing(cores=6):
-    print('Reading ' + input_file + ' ...')
-    sac = read(input_file)
-    delta = round(sac[0].stats.delta * 100) / 100
-    span_sec = sac[0].stats.endtime - sac[0].stats.starttime
-
-    win = delta * (npts - 1)
-    sub_windows = get_windows(sac,win)
-    inputs = zip(sub_windows, [npts for _ in range(len(sub_windows))])
-
-    t0 = time.time()
-
-    with mp.Pool(processes = cores) as pool:
-        results = list(pool.starmap(get_spectrum, inputs))
-    t1 = time.time()
-
-    print('Execution took {:.4f}'.format(t1 - t0))
-    return results
-
+saved_spectrum = 'spectra/spectrum_2023-10-16_03:50:17_2023-10-17_03:30:12.pkl'
 
 if __name__ == '__main__':
-    results = get_spectrum_parallel_processing()
-    plot_spectrum(results) 
-    #save_times2file(times)
+    #results = get_spectrum_parallel_processing(input_file, npts, overlap, T_min, T_max)
+    #save_spectrum2file(results) 
+    results = import_spectrum(saved_spectrum)
+    plot_spectrum(results, T_min, T_max)
