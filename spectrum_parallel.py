@@ -73,4 +73,3 @@ def get_min_max_times(times):
 if __name__ == '__main__':
     results = get_spectrum_parallel_processing()
     save_spectrum2file(results) 
-    #save_times2file(times)
