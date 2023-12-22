@@ -50,9 +50,10 @@ def save_spectrum2file(results):
     max_time = datetime.utcfromtimestamp(max(times))
     min_time = min_time.strftime('%Y-%m-%d_%H:%M:%S')
     max_time = max_time.strftime('%Y-%m-%d_%H:%M:%S')
-    print('min_time: ', min_time)
-    print('max_time: ', max_time)
-    with open('spectrum.pkl', 'wb') as f:
+    filename = '_'.join(['spectrum',
+                         datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
+                         datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.pkl'
+    with open(filename, 'wb') as f:
         pickle.dump(results, f)
     return None
 
@@ -71,5 +72,5 @@ def get_min_max_times(times):
 
 
 if __name__ == '__main__':
-    results = get_spectrum_parallel_processing()
+    results = get_spectrum_parallel_processing(cores=8)
     save_spectrum2file(results) 
