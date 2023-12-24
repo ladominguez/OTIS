@@ -17,7 +17,7 @@ T_min = 0.5
 T_max = 10
 overlap = 1.0
 input_file = '/'.join(['data',station,'.'.join(['short',station,component,'sac'])])
-
+spectrum_filename = 'spectrum_2023-10-16_03:50:17_2023-10-17_03:30:12.pkl'
 
 
 def get_windows(stream, win):
@@ -72,5 +72,8 @@ def get_min_max_times(times):
 
 
 if __name__ == '__main__':
-    results = get_spectrum_parallel_processing(cores=8)
-    save_spectrum2file(results) 
+    #results = get_spectrum_parallel_processing(cores=8)
+    #save_spectrum2file(results) 
+    results = read_spectrum2file(spectrum_filename)
+    plot_spectrum(results)
+
