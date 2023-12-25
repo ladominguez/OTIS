@@ -1,6 +1,7 @@
 from mtspec import mtspec
-import pygmt
+from matplotlib import pyplot as plt
 import numpy as np
+from matplotlib.dates import DateFormatter
 
 T_min = 0.5
 T_max = 10
@@ -44,10 +45,31 @@ def save_times2file(times, filename='times.txt'):
 
 def plot_spectrum(results):
     times = [result[0] for result in results]
-    spectrum = [result[1] for result in results]
-    period = [result[2] for result in results]
-    Aspec_max = max(max(spec) for spec in spectrum)
-    Aspec_min = min(min(spec) for spec in spectrum)
+    spectra = [result[1] for result in results]
+    periods = [result[2] for result in results]
+    Aspec_max = max(max(spec) for spec in spectra)
+    Aspec_min = min(min(spec) for spec in spectra)
+
+    # create a spectrogram plot using matplotlib
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.set_title('Spectrogram')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Period')
+    ax.set_yscale('log')
+    ax.set_ylim(T_min, T_max)
+    ax.set_xlim(min(times).datetime, max(times).datetime)
+    ax.set_facecolor('black')
+    date_form = DateFormatter("%Y-%b-%d")
+    ax.xaxis.set_major_formatter(date_form)
+    for ti, period, spectrum in zip(times, periods, spectra):
+        t = [ti.datetime for _ in range(len(period))]
+        # set marker size smaller for better visualization
+        # change marker to square  for better visualization
+    
+        ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
+ 
+        
+    plt.show()
     
 
 def get_spectrum(data, npts):
