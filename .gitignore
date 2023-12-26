@@ -1,4 +1,6 @@
 data
+spectra
+img
 *.txt
 *.png
 *.pkl

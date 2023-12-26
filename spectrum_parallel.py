@@ -8,6 +8,12 @@ import time
 from datetime import datetime
 import multiprocessing as mp
 import pickle
+import os
+import warnings
+
+# Ignore all instances of RuntimeWarning
+warnings.filterwarnings('ignore', category=RuntimeWarning)
+
 
 
 npts = 2**16
@@ -41,6 +47,8 @@ def get_spectrum_parallel_processing(cores=6):
     t1 = time.time()
 
     print('Execution took {:.4f}'.format(t1 - t0))
+    print('Memory usage: {:.4f} MB'.format(asizeof.asizeof(results)/1024/1024))
+    print('Number of days processed: {:.1f} days'.format(span_sec/86400))
     return results
 
 # Write a function that saves the output of the function get_spectrum_parallel_processing to a binary file sing pickle
@@ -50,10 +58,12 @@ def save_spectrum2file(results):
     max_time = datetime.utcfromtimestamp(max(times))
     min_time = min_time.strftime('%Y-%m-%d_%H:%M:%S')
     max_time = max_time.strftime('%Y-%m-%d_%H:%M:%S')
-    filename = '_'.join(['spectrum',
+    # Count the number of days between min_time and max_time
+
+    filename = '_'.join(['spectrum', station, component,
                          datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
                          datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.pkl'
-    with open(filename, 'wb') as f:
+    with open(os.path.join('spectra',filename), 'wb') as f:
         pickle.dump(results, f)
     return None
 
