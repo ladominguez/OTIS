@@ -17,13 +17,13 @@ warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 
 npts = 2**16
-station = 'caig'
-component = 'HHN'
+station = 'daig'
+component = 'HHZ'
 T_min = 0.5
 T_max = 10
 overlap = 1.0
 input_file = '/'.join(['data',station,'.'.join([station,component,'sac'])])
-spectrum_filename = 'spectrum_2023-10-16_03:50:17_2023-10-17_03:30:12.pkl'
+spectrum_filename = 'spectra/caig/spectrum_caig_HHZ_2023-10-16_03:50:17_2023-10-26_23:58:32.pkl'
 
 
 def get_windows(stream, win):
@@ -58,12 +58,16 @@ def save_spectrum2file(results):
     max_time = datetime.utcfromtimestamp(max(times))
     min_time = min_time.strftime('%Y-%m-%d_%H:%M:%S')
     max_time = max_time.strftime('%Y-%m-%d_%H:%M:%S')
-    # Count the number of days between min_time and max_time
+     
 
     filename = '_'.join(['spectrum', station, component,
                          datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
                          datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.pkl'
-    with open(os.path.join('spectra',filename), 'wb') as f:
+    # check in the directory spectra/station already exists, if not create it
+    if not os.path.exists(os.path.join('spectra',station)):
+        os.makedirs(os.path.join('spectra',station))
+
+    with open(os.path.join('spectra',station,filename), 'wb') as f:
         pickle.dump(results, f)
     return None
 
@@ -82,8 +86,8 @@ def get_min_max_times(times):
 
 
 if __name__ == '__main__':
-    results = get_spectrum_parallel_processing(cores=8)
-    save_spectrum2file(results) 
-    #results = read_spectrum2file(spectrum_filename)
-    #plot_spectrum(results)
+    #results = get_spectrum_parallel_processing(cores=8)
+    #save_spectrum2file(results) 
+    results = read_spectrum2file(spectrum_filename)
+    plot_spectrum(results)
 

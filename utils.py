@@ -43,9 +43,9 @@ def save_times2file(times, filename='times.txt'):
             file.write(f"{date_string}\n")
     return None
 
-def plot_spectrum(results):
+def plot_spectrum(results, savefig = False):
     times = [result[0] for result in results]
-    spectra = [result[1] for result in results]
+    spectra = [np.clip(result[1],-1, None) for result in results]
     periods = [result[2] for result in results]
     Aspec_max = max(max(spec) for spec in spectra)
     Aspec_min = min(min(spec) for spec in spectra)
@@ -70,6 +70,12 @@ def plot_spectrum(results):
  
         
     plt.show()
+
+    if savefig:
+        file_figure = '_'.join(['spectrum', station, component,
+                                datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
+                                datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.png'
+        plt.savefig(file_figure, dpi=300)
     
 
 def get_spectrum(data, npts):
