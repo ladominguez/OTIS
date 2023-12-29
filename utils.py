@@ -51,14 +51,16 @@ def plot_spectrum(results, savefig = False):
     Aspec_min = min(min(spec) for spec in spectra)
 
     # create a spectrogram plot using matplotlib
-    fig, ax = plt.subplots(figsize=(12, 5))
-    ax.set_title('Spectrogram')
+    fig, ax = plt.subplots(figsize=(12, 7))
+    print(station)
+    ax.set_title(spectrum_filename)
     ax.set_xlabel('Time')
     ax.set_ylabel('Period')
     ax.set_yscale('log')
     ax.set_ylim(T_min, T_max)
     ax.set_xlim(min(times).datetime, max(times).datetime)
     ax.set_facecolor('black')
+    ax.set_xticklabels(ax.get_xticks(), rotation = 45) 
     date_form = DateFormatter("%Y-%b-%d")
     ax.xaxis.set_major_formatter(date_form)
     for ti, period, spectrum in zip(times, periods, spectra):
@@ -67,7 +69,7 @@ def plot_spectrum(results, savefig = False):
         # change marker to square  for better visualization
     
         ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
- 
+
         
     plt.show()
 
