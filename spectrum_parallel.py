@@ -83,11 +83,11 @@ def get_min_max_times(times):
     max_time = max(times)
     return min_time, max_time
 
-
+def get_average_spectrum(index1, index2):
+    return None
 
 if __name__ == '__main__':
     #results = get_spectrum_parallel_processing(cores=8)
     #save_spectrum2file(results) 
     results = read_spectrum2file(spectrum_filename)
     plot_spectrum(results)
-
