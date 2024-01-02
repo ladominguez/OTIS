@@ -1,93 +1,34 @@
 import numpy as np
-from obspy.core import read
-from matplotlib import pyplot as plt
-from tqdm import tqdm
-from utils import downsample_array, get_spectrum, plot_spectrum
-from pympler import asizeof
-import time
-from datetime import datetime
-import multiprocessing as mp
-import pickle
-import os
+from utils import *
 import warnings
 
 # Ignore all instances of RuntimeWarning
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 
-
-npts = 2**16
-station = 'daig'
-component = 'HHZ'
-T_min = 0.5
-T_max = 10
-overlap = 1.0
-input_file = '/'.join(['data',station,'.'.join([station,component,'sac'])])
-spectrum_filename = 'spectra/caig/spectrum_caig_HHZ_2023-10-16_03:50:17_2023-10-26_23:58:32.pkl'
+#npts = 2**16
+#station = 'daig'
+#component = 'HHZ'
+#T_min = 0.5
+#T_max = 10
+#overlap = 1.0
+#spectrum_filename = 'spectra/caig/spectrum_caig_HHZ_2023-10-16_03:50:17_2023-10-26_23:58:32.pkl'
 
 
-def get_windows(stream, win):
-    sub_windows = [window for window  in stream[0].slide(window_length=win, step=win*overlap)]
-    return sub_windows
 
-def get_spectrum_parallel_processing(cores=6):
-    print('Reading ' + input_file + ' ...')
-    sac = read(input_file)
-    delta = round(sac[0].stats.delta * 100) / 100
-    span_sec = sac[0].stats.endtime - sac[0].stats.starttime
+#def get_min_max_times(times):
+#    min_time = min(times)
+#    max_time = max(times)
+#    return min_time, max_time
 
-    win = delta * (npts - 1)
-    sub_windows = get_windows(sac,win)
-    inputs = zip(sub_windows, [npts for _ in range(len(sub_windows))])
-
-    t0 = time.time()
-
-    with mp.Pool(processes = cores) as pool:
-        results = list(pool.starmap(get_spectrum, inputs))
-    t1 = time.time()
-
-    print('Execution took {:.4f}'.format(t1 - t0))
-    print('Memory usage: {:.4f} MB'.format(asizeof.asizeof(results)/1024/1024))
-    print('Number of days processed: {:.1f} days'.format(span_sec/86400))
-    return results
-
-# Write a function that saves the output of the function get_spectrum_parallel_processing to a binary file sing pickle
-def save_spectrum2file(results):
-    times = [t.timestamp for t, _, _ in results]
-    min_time = datetime.utcfromtimestamp(min(times))
-    max_time = datetime.utcfromtimestamp(max(times))
-    min_time = min_time.strftime('%Y-%m-%d_%H:%M:%S')
-    max_time = max_time.strftime('%Y-%m-%d_%H:%M:%S')
-     
-
-    filename = '_'.join(['spectrum', station, component,
-                         datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
-                         datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.pkl'
-    # check in the directory spectra/station already exists, if not create it
-    if not os.path.exists(os.path.join('spectra',station)):
-        os.makedirs(os.path.join('spectra',station))
-
-    with open(os.path.join('spectra',station,filename), 'wb') as f:
-        pickle.dump(results, f)
-    return None
-
-# Write a function that reads the output of the function get_spectrum_parallel_processing from a binary file sing pickle
-def read_spectrum2file(filename):
-    with open(filename, 'rb') as f:
-        results = pickle.load(f)
-    return results
-
-# Write a function to extract the minimum and maximum values of a list containing UTCDateTime objects
-def get_min_max_times(times):
-    min_time = min(times)
-    max_time = max(times)
-    return min_time, max_time
-
-def get_average_spectrum(index1, index2):
+def get_average_spectrum(spectrum, index1, index2):
     return None
 
 if __name__ == '__main__':
-    #results = get_spectrum_parallel_processing(cores=8)
-    #save_spectrum2file(results) 
-    results = read_spectrum2file(spectrum_filename)
-    plot_spectrum(results)
+    config = load_configuration('configuration.ini')
+    results = get_spectrum_parallel_processing(config, cores=8)
+    save_spectrum2file(results,config['station']['name'],config['station']['component']) 
+    #results = read_spectrum2file(spectrum_filename)
+    #plot_spectrum(results)
+
+            
