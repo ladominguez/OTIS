@@ -50,8 +50,31 @@ def downsample_array(arr, factor):
 
     return downsampled_arr
 
-def get_average_spectrum(spectrum, index1, index2):
-    return None
+def get_spectrogram(resutls):
+    return 
+
+
+def get_average_spectrum(results, index1, index2):
+    """
+    Get the average spectrum between two indices.
+
+    Parameters:
+    - spectrum: 2D NumPy array containing the spectrum
+    - index1: First index
+    - index2: Second index
+
+    Returns:
+
+    """
+    if index1 > index2:
+        raise ValueError("index1 must be less than or equal to index2")
+    
+    if index2 > len(spectrum):
+        raise ValueError("index2 must be less than or equal to the length of the spectrum")
+    spectrogram = np.asarray([results[k][1] for k in range(index1,index2)],dtype=np.float32)
+
+    return np.mean(spectrum[index1:index2], axis=0)
+
 
 
 # This function that reads the output of the function get_spectrum_parallel_processing from a binary file sing pickle
@@ -76,6 +99,7 @@ def plot_spectrum(results, config, savefig = False):
     # create a spectrogram plot using matplotlib
     fig, ax = plt.subplots(figsize=(12, 7))
     print(station)
+    ax.set_title(station.upper() + ' - ' + component)
     #ax.set_title(spectrum_filename)
     ax.set_xlabel('Time')
     ax.set_ylabel('Period')
