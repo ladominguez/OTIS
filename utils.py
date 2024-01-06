@@ -69,24 +69,46 @@ def get_average_spectrum(results, index1, index2):
     if index1 > index2:
         raise ValueError("index1 must be less than or equal to index2")
     
-    if index2 > len(spectrum):
+    if index2 > len(results):
         raise ValueError("index2 must be less than or equal to the length of the spectrum")
-    spectrogram = np.asarray([results[k][1] for k in range(index1,index2)],dtype=np.float32)
-
-    return np.mean(spectrum[index1:index2], axis=0)
+    spectrogram = get_spectrum_from_results(results)
 
 
+    return spectrogram[index1:index2].mean(axis=0)
 
+def get_spectrum_from_results(results):
+    return np.array([result[1] for result in results])
+
+def get_periods_from_results(results):
+    return np.array([result[2] for result in results])
+
+def get_time_from_index(results, index):
+    return results[index][0]
+def get_times_from_results(results):
+    return  [result[0] for result in results]
 # This function that reads the output of the function get_spectrum_parallel_processing from a binary file sing pickle
 def read_spectrum2file(filename):
     with open(filename, 'rb') as f:
         results, configuration = pickle.load(f)
     return results, configuration
 
+def plot_spectrum(results, config, plot_fig=True):
+    """
+    Plot the spectrum of seismic data.
 
-def plot_spectrum(results, config, savefig = False):
+    Args:
+        results (list): List of tuples containing the results of the spectrum analysis.
+            Each tuple should have the format (time, spectrum, period).
+        config (dict): Configuration settings for the plot.
+            It should contain the keys 'station' and 'spectrum'.
+        plot_fig (bool, optional): Whether to display the plot. Defaults to True.
+
+    Returns:
+        tuple: A tuple containing the figure and axis objects of the plot.
+
+    """
     times = [result[0] for result in results]
-    spectra = [np.clip(result[1],-1, None) for result in results]
+    spectra = [np.clip(result[1], -1, None) for result in results]
     periods = [result[2] for result in results]
     Aspec_max = max(max(spec) for spec in spectra)
     Aspec_min = min(min(spec) for spec in spectra)
@@ -95,12 +117,9 @@ def plot_spectrum(results, config, savefig = False):
     T_min = eval(config['spectrum']['T_min'], {'__builtins__': None}, {})
     T_max = eval(config['spectrum']['T_max'], {'__builtins__': None}, {})
 
-
     # create a spectrogram plot using matplotlib
     fig, ax = plt.subplots(figsize=(12, 7))
-    print(station)
     ax.set_title(station.upper() + ' - ' + component)
-    #ax.set_title(spectrum_filename)
     ax.set_xlabel('Time')
     ax.set_ylabel('Period')
     ax.set_yscale('log')
@@ -108,27 +127,27 @@ def plot_spectrum(results, config, savefig = False):
     ax.set_xlim(min(times).datetime, max(times).datetime)
     ax.set_facecolor('black')
     xticks = ax.get_xticks()
-    ax.set_xticklabels(xticks, rotation = 45) 
     ax.xaxis.set_major_locator(FixedLocator(xticks))
+    ax.set_xticklabels(xticks, rotation=45)
 
     date_form = DateFormatter("%Y-%b-%d")
     ax.xaxis.set_major_formatter(date_form)
 
     for ti, period, spectrum in zip(times, periods, spectra):
         t = [ti.datetime for _ in range(len(period))]
-        # set marker size smaller for better visualization
-        # change marker to square  for better visualization
-    
         ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
-        
-    plt.show()
 
-    if savefig:
-        file_figure = '_'.join(['spectrum', station, component,
-                                datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
-                                datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.png'
-        plt.savefig(file_figure, dpi=300)
+    if plot_fig:
+        plt.show()
 
+    return fig, ax
+
+def plot_average_box(fig, ax, t0, t1, color='white'):
+    # make the outline of the box black
+    ax.axvspan(t0.datetime, t1.datetime, linewidth=3, 
+               edgecolor=color, facecolor='none', clip_on=True)
+    #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
+    return fig, ax
 
 def get_spectrum(data, npts, T_min, T_max):
     #npts = 2**16
@@ -221,3 +240,10 @@ def save_times2file(times, filename='times.txt'):
         for date_string in date_strings:
             file.write(f"{date_string}\n")
     return None
+
+def save_figure(fig, station, component):
+    
+    file_figure = '_'.join(['spectrum', station, component]) + '.png'
+                            #datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
+                            #datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.png'
+    fig.savefig(file_figure, dpi=300)
