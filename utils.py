@@ -72,9 +72,18 @@ def get_average_spectrum(results, index1, index2):
     if index2 > len(results):
         raise ValueError("index2 must be less than or equal to the length of the spectrum")
     spectrogram = get_spectrum_from_results(results)
+    sums = np.sum(spectrogram[index1:index2], axis=1)
+    Q1 = np.percentile(sums, 25, axis=0)
+    Q3 = np.percentile(sums, 75, axis=0)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
 
-
-    return spectrogram[index1:index2].mean(axis=0)
+    # Remove outliers
+    index_remove = np.where((sums < lower_bound) | (sums > upper_bound))[0]
+    #spectrogram[index1:index2][index_remove] = np.nan
+    
+    return np.delete(spectrogram[index1:index2], index_remove,0).mean(axis=0)
 
 def get_spectrum_from_results(results):
     return np.array([result[1] for result in results])
@@ -148,6 +157,30 @@ def plot_average_box(fig, ax, t0, t1, color='white'):
                edgecolor=color, facecolor='none', clip_on=True)
     #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
     return fig, ax
+
+def remove_outliers(results, threshold=0.5):
+    """
+    Remove outliers from a list of results.
+
+    Args:
+        results (list): List of tuples containing the results of the spectrum analysis.
+            Each tuple should have the format (time, spectrum, period).
+        threshold (float, optional): Threshold for removing outliers. Defaults to 0.5.
+
+    Returns:
+        list: List of tuples containing the results of the spectrum analysis with outliers removed.
+
+    """
+    spectra = [result[1] for result in results]
+    periods = [result[2] for result in results]
+    # Calculate the mean and standard deviation of each period
+    mean = np.array([np.mean(spec) for spec in spectra])
+    std = np.array([np.std(spec) for spec in spectra])
+    # Calculate the z-score for each spectrum
+    z_scores = [(spec - mean) / std for spec in spectra]
+    # Remove outliers
+    results = [result for result, z_score in zip(results, z_scores) if np.all(np.abs(z_score) < threshold)]
+    return results
 
 def get_spectrum(data, npts, T_min, T_max):
     #npts = 2**16
