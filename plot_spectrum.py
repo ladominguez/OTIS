@@ -12,8 +12,9 @@ if __name__ == '__main__':
     index2 = 40
     t0 = get_time_from_index(results, index1)
     t1 = get_time_from_index(results, index2)
-    spectrogram = get_average_spectrum(results, index1, index2)
-    #print_configuration(config)
-    #fig, ax = plot_spectrum(results, config, plot_fig = False)
+    results_demeaned = remove_average_spectrum(results, index1, index2)
+    #spectrogram = get_average_spectrum(results, index1, index2)
+    print_configuration(config)
+    fig, ax = plot_spectrum(results_demeaned, config, plot_fig = False)
     #fig, ax = plot_average_box(fig, ax, t0, t1, color = 'green')
     plt.show()

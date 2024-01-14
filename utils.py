@@ -50,10 +50,6 @@ def downsample_array(arr, factor):
 
     return downsampled_arr
 
-def get_spectrogram(resutls):
-    return 
-
-
 def get_average_spectrum(results, index1, index2):
     """
     Get the average spectrum between two indices.
@@ -157,6 +153,10 @@ def plot_average_box(fig, ax, t0, t1, color='white'):
                edgecolor=color, facecolor='none', clip_on=True)
     #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
     return fig, ax
+def remove_average_spectrum(results, index1, index2):
+    spectra = get_spectrum_from_results(results)
+    mean_spectra = get_average_spectrum(results, index1, index2)
+    return (results[0], results[1],spectra - mean_spectra)
 
 def remove_outliers(results, threshold=0.5):
     """
