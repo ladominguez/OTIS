@@ -87,6 +87,9 @@ def get_spectrum_from_results(results):
 def get_periods_from_results(results):
     return np.array([result[2] for result in results])
 
+def get_times_from_results(results):
+    return np.array([result[0] for result in results])
+
 def get_time_from_index(results, index):
     return results[index][0]
 def get_times_from_results(results):
@@ -97,7 +100,7 @@ def read_spectrum2file(filename):
         results, configuration = pickle.load(f)
     return results, configuration
 
-def plot_spectrum(results, config, plot_fig=True):
+def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
     """
     Plot the spectrum of seismic data.
 
@@ -113,10 +116,17 @@ def plot_spectrum(results, config, plot_fig=True):
 
     """
     times = [result[0] for result in results]
-    spectra = [np.clip(result[1], -1, None) for result in results]
+    if demean_plot:
+        spectra = get_spectrum_from_results(results)
+    else:
+        spectra = [np.clip(result[1], -1, None) for result in results]
     periods = [result[2] for result in results]
     Aspec_max = max(max(spec) for spec in spectra)
-    Aspec_min = min(min(spec) for spec in spectra)
+    # The next 3 lines remove the -inf values from the spectra, and then calculate the minimum value
+    Aspec_min = np.min(spectra, axis = 1) 
+    Aspec_min_no_inf = np.where(Aspec_min == -np.inf, np.nan, Aspec_min)
+    Aspec_min = np.nanmin(Aspec_min_no_inf, axis = 0)
+    
     station = config['station']['name']
     component = config['station']['component']
     T_min = eval(config['spectrum']['T_min'], {'__builtins__': None}, {})
@@ -140,7 +150,11 @@ def plot_spectrum(results, config, plot_fig=True):
 
     for ti, period, spectrum in zip(times, periods, spectra):
         t = [ti.datetime for _ in range(len(period))]
-        ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
+        if demean_plot:
+            Aspec_max_abs = max(abs(Aspec_max), abs(Aspec_min))
+            ax.scatter(t, period, c=spectrum, cmap='seismic', vmin=-Aspec_max_abs, vmax=Aspec_max_abs, s=12, marker='s')
+        else:
+            ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
 
     if plot_fig:
         plt.show()
@@ -154,9 +168,8 @@ def plot_average_box(fig, ax, t0, t1, color='white'):
     #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
     return fig, ax
 def remove_average_spectrum(results, index1, index2):
-    spectra = get_spectrum_from_results(results)
-    mean_spectra = get_average_spectrum(results, index1, index2)
-    return (results[0], results[1],spectra - mean_spectra)
+    demeaned = get_spectrum_from_results(results) - get_average_spectrum(results, index1, index2)
+    return [(result[0], demean, result[2]) for result, demean in zip(results, demeaned)]
 
 def remove_outliers(results, threshold=0.5):
     """

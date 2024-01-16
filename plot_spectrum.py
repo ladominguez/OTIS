@@ -15,6 +15,6 @@ if __name__ == '__main__':
     results_demeaned = remove_average_spectrum(results, index1, index2)
     #spectrogram = get_average_spectrum(results, index1, index2)
     print_configuration(config)
-    fig, ax = plot_spectrum(results_demeaned, config, plot_fig = False)
+    fig, ax = plot_spectrum(results_demeaned, config, plot_fig = True, demean_plot=True)
     #fig, ax = plot_average_box(fig, ax, t0, t1, color = 'green')
     plt.show()
