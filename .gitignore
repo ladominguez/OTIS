@@ -1,6 +1,7 @@
 data
 spectra
 img
+figures
 *.txt
 *.png
 *.pkl

@@ -1,4 +1,5 @@
-from mtspec import mtspec
+#from mtspec import mtspec
+#from tqdm import tqdm
 from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.dates import DateFormatter
@@ -9,7 +10,6 @@ import os
 from datetime import datetime
 import time
 import multiprocessing as mp
-from tqdm import tqdm
 from pympler import asizeof
 import configparser
 
@@ -287,9 +287,10 @@ def save_times2file(times, filename='times.txt'):
             file.write(f"{date_string}\n")
     return None
 
-def save_figure(fig, station, component):
+def save_figure(fig, station, component, resolution=300):
     
     file_figure = '_'.join(['spectrum', station, component]) + '.png'
                             #datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
                             #datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.png'
-    fig.savefig(file_figure, dpi=300)
+    file_figure = os.path.join('figures',file_figure)
+    fig.savefig(file_figure, dpi=resolution)
