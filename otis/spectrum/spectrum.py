@@ -1,22 +1,9 @@
 from mtspec import mtspec
-from tqdm import tqdm
 import numpy as np
-import pickle
 from obspy.core import read
-import configparser
-
-
-def load_configuration(filename):
-    config = configparser.ConfigParser()
-    config.read(filename)
-    return config
-
-def print_configuration(config):
-    for section in config.sections():
-        print(f"[{section}]")
-        for key in config[section]:
-            print(f"{key} = {config[section][key]}")
-        print()
+import time
+import multiprocessing as mp
+from pympler import asizeof
 
 def downsample_array(arr, factor):
     """
@@ -106,31 +93,4 @@ def get_windows(stream, win, overlap):
 
 
 # This function that saves the output of the function get_spectrum_parallel_processing to a binary file sing pickle
-def save_spectrum2file(results, config):
-    times = [t.timestamp for t, _, _ in results]
-    min_time = datetime.utcfromtimestamp(min(times))
-    max_time = datetime.utcfromtimestamp(max(times))
-    min_time = min_time.strftime('%Y-%m-%d_%H:%M:%S')
-    max_time = max_time.strftime('%Y-%m-%d_%H:%M:%S')
-    station = config['station']['name']
-    component = config['station']['component'] 
 
-    filename = '_'.join(['spectrum', station, component,
-                         datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
-                         datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.pkl'
-    # check in the directory spectra/station already exists, if not create it
-    if not os.path.exists(os.path.join('spectra',station)):
-        os.makedirs(os.path.join('spectra',station))
- 
-    output_file = os.path.join('spectra',station,filename)  
-    with open(output_file, 'wb') as f:
-        pickle.dump([results, config], f)
-    print('Spectrum saved to ' + output_file)
-    return None
-
-def save_times2file(times, filename='times.txt'):
-    date_strings = [t.strftime("%Y-%m-%d %H:%M:%S") for t in times]
-    with open(filename, "w") as file:
-        for date_string in date_strings:
-            file.write(f"{date_string}\n")
-    return None
