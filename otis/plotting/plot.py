@@ -1,8 +1,12 @@
 import numpy as np
+import os
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FixedLocator
 from otis.plotting.tools import get_spectrum_from_results
+
 
 
 def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
@@ -64,6 +68,13 @@ def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
     if plot_fig:
         plt.show()
 
+    return fig, ax
+
+def plot_average_box(fig, ax, t0, t1, color='white'):
+    # make the outline of the box black
+    ax.axvspan(t0.datetime, t1.datetime, linewidth=3,
+               edgecolor=color, facecolor='none', clip_on=True)
+    #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
     return fig, ax
 
 def save_figure(fig, station, component, resolution=300):

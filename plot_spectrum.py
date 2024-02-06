@@ -20,13 +20,14 @@ if __name__ == '__main__':
     station = config['station']['name']
     component = config['station']['component']
     index1 = 20
-    index2 = 40
+    index2 = 160
     t0 = core.get_time_from_index(results, index1)
     t1 = core.get_time_from_index(results, index2)
-
     results_demeaned = tools.remove_average_spectrum(results, index1, index2)
     core.print_configuration(config)
-    fig, ax = plot.plot_spectrum(results_demeaned, config, plot_fig = True, demean_plot=True)
+    fig, ax = plot.plot_spectrum(results_demeaned, config, plot_fig = False, demean_plot=True)
+    fig, ax = plot.plot_average_box(fig, ax, t0, t1, color='black')
+
     plot.save_figure(fig, station, component)
 
 
