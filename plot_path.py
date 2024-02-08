@@ -19,6 +19,10 @@ def read_path(filename):
     time = pd.to_datetime(path['time'])
     return time, path['latitude'], path['longitude']
 
+def distance_to_station(latitude, longitude, path): -> " [km]"
+    return distances
+
+
 if __name__ == "__main__":
     time, latitude, longitude = read_path('hurracaine_path.dat')
     pass
