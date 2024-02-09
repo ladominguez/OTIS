@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import pandas as pd
+from geopy.distance import great_circle
 
 def plot_data(data, title, xlabel, ylabel):
     plt.plot(data)
@@ -17,12 +18,18 @@ def read_path(filename):
                        date_format='%Y/%m/%dT%H:%M:%S',
                        dtype={'time': str, 'latitude':float, 'longitude':float})
     time = pd.to_datetime(path['time'])
-    return time, path['latitude'], path['longitude']
+    return time, path
 
-def distance_to_station(latitude, longitude, path): -> " [km]"
+def distance_to_station(latitude, longitude, path):
+    distances = []
+    for _, row in path.iterrows():
+        distances.append(great_circle((latitude, longitude), (row['latitude'], row['longitude'])).km)
     return distances
 
 
 if __name__ == "__main__":
-    time, latitude, longitude = read_path('hurracaine_path.dat')
+    time, path = read_path('hurracaine_path.dat')
+
+    distances = distance_to_station(25.7617, -80.1918, path)
+    print(distances)
     pass
