@@ -335,24 +335,25 @@ def plot_cmaps(cmap_list, width=6, cmap_height=0.5, axes_off=False):
 if __name__ == '__main__':
     #tests
     # test 1: FULL PATH, LinearSegmented, method cdict
-    cpt_path = r'D:\Users\bouzidi\Desktop\matplotlib colormaps - cpt-city\cpt'
-    cpt_fullpath = os.path.join(cpt_path, 'mby.cpt')
+    #cpt_path = r'D:\Users\bouzidi\Desktop\matplotlib colormaps - cpt-city\cpt
+    cpt_path=r'BlueWhiteOrangeRed.cpt'
+    #cpt_fullpath = os.path.join(cpt_path)
 
-    a = get_cmap(cpt_fullpath)
+    a = get_cmap(cpt_path)
     print(a)
 
     # test 2: LOCAL FILE, CHANGE BASEDIR
-    basedir = r'D:\Users\bouzidi\Desktop\matplotlib colormaps - cpt-city\test\new_ctp'
-    print(basedir)
-    myctp2 = 'purple-orange-d15.cpt'
-    pos, b = get_listed_cmap(myctp2)
+    #basedir = r'D:\Users\bouzidi\Desktop\matplotlib colormaps - cpt-city\test\new_ctp'
+    #print(basedir)
+    #myctp2 = 'purple-orange-d15.cpt'
+    #pos, b = get_listed_cmap(myctp2)
 
     # test 3: url
-    myurl = 'http://soliton.vm.bytemark.co.uk/pub/cpt-city/km/purple-orange-d15.cpt'
-    c = get_cmap(myurl)
-    print(c)
-    print(c.name)
+    #myurl = 'http://soliton.vm.bytemark.co.uk/pub/cpt-city/km/purple-orange-d15.cpt'
+    #c = get_cmap(myurl)
+    #print(c)
+    #print(c.name)
 
     # test 4: plots
-    fig = plot_cmaps([a,b,c])
+    fig = plot_cmaps([a])
     plt.show()

@@ -1,6 +1,7 @@
 from otis import core
 from otis import tools
 from otis.plotting import plot, tools
+import pycpt
 
 import warnings
 import sys
@@ -13,7 +14,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('Please provide input file as argument')
         sys.exit(1)
-    
+    cpt = pycpt.load.gmtColormap('./cpt/BlueWhiteOrangeRed.cpt')
     input_file = sys.argv[1]
     #input_file = 'spectra/caig/spectrum_caig_HHZ_2023-10-16_03:50:17_2023-10-26_23:58:32.pkl'
     results, config = core.read_spectrum2file(input_file)
