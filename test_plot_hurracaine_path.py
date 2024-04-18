@@ -46,7 +46,7 @@ def plot_map(trajectory_latitutde, trajectory_longitude, save=False):
     fig.basemap(region=region, projection=projection, frame=frame)
 
     # Plot the map of Mexico
-    fig.coast(land="gray", water="white", shorelines=True)
+    fig.coast(land="gray", water="white", shorelines=True, map_scale="jBL+w500k+o0.5c/0.5c+f+u")
     fig.plot(data = trench_file, style="f0.5i/0.10i+l+t", pen="1p,black", fill="gray69")
 
     for row in ssn_stations.itertuples():
@@ -59,10 +59,37 @@ def plot_map(trajectory_latitutde, trajectory_longitude, save=False):
     for x_text, y_text, t_text in zip(trajectory_labels['lon'], trajectory_labels['lat'], trajectory_labels['datetime']):
         fig.text(x=x_text, y=y_text, text=t_text.strftime('%b-%d %H:%M'), font='8p,Times-Bold,black',justify='BL')
 
-    fig.plot(x=trajectory_longitude, y=trajectory_latitutde, style='c0.1c', pen='1p,black', fill='blue')
-    fig.plot(x=trajectory['lon'], y=trajectory['lat'], style='c0.2c', fill='red', pen='black')
-    #fig.plot(data = TFZ_file, pen="1p,black")
 
+    #fig.plot(data = './path/01_tropical_depression.txt', pen="5p,yellow", transparency=50)
+    #fig.plot(data = './path/02_tropical_storm.txt',      pen="5p,green",  transparency=50)
+    #fig.plot(data = './path/03_hurracaine.txt',          pen="5p,red",    transparency=75)
+    #fig.plot(data = './path/04_major_hurracaine.txt',    pen="15p,purple",  transparency=75)
+    #fig.plot(data = './path/05_hurracaine_inland.txt',   pen="15p,red")
+    #fig.plot(data = './path/06_tropical_storm.txt',      pen="15p,green")
+
+    fig.plot(x=trajectory_longitude, y=trajectory_latitutde, style='c0.15c', pen='1p,black', fill='blue')
+    ind = np.where(trajectory_latitutde <= 14.3) # tropical storm
+    fig.plot(x=trajectory_longitude[ind], y=trajectory_latitutde[ind], style='c0.15c', pen='1p,black', fill='green')
+    ind = np.where((trajectory_latitutde > 14.3) & (trajectory_latitutde <= 15.0)) # Hurracaine
+    fig.plot(x=trajectory_longitude[ind], y=trajectory_latitutde[ind], style='c0.15c', pen='1p,black', fill='orange')
+    ind = np.where((trajectory_latitutde > 15.0) & (trajectory_latitutde <= 16.8)) # major Hurracaine
+    fig.plot(x=trajectory_longitude[ind], y=trajectory_latitutde[ind], style='c0.15c', pen='1p,black', fill='purple')
+    ind = np.where((trajectory_latitutde > 16.8) & (trajectory_latitutde <= 18.1)) # Hurracaine
+    fig.plot(x=trajectory_longitude[ind], y=trajectory_latitutde[ind], style='c0.15c', pen='1p,black', fill='orange')
+    ind = np.where(trajectory_latitutde > 18.1) # tropical storm
+    fig.plot(x=trajectory_longitude[ind], y=trajectory_latitutde[ind], style='c0.15c', pen='1p,black', fill='green')
+    fig.plot(x=trajectory['lon'], y=trajectory['lat'], style='c0.25c', fill='white', pen='2p,black')
+
+    # Markers
+    fig.plot(x=-107.6, y=13.20, style='c0.35c', pen='2p,black', fill='green')
+    fig.plot(x=-107.6, y=12.60, style='c0.35c', pen='2p,black', fill='orange')
+    fig.plot(x=-107.6, y=12.00, style='c0.35c', pen='2p,black', fill='purple')
+    fig.text(x=-107.4, y=13.20, text='Tropical storm', font='14p,Times-Roman,black',justify='ML')
+    fig.text(x=-107.4, y=12.60, text='Hurracaine', font='14p,Times-Roman,black',justify='ML')
+    fig.text(x=-107.4, y=12.00, text='Major Hurracaine', font='14p,Times-Roman,black',justify='ML')
+    
+    
+    
     if save:
         fig.savefig('hurracaine_path.png', dpi=300)
         print('Saving figure hurracaine_path.png')
