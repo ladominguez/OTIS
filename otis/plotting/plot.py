@@ -66,7 +66,10 @@ def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
             ax.scatter(t, period, c=spectrum, cmap='seismic', vmin=-Aspec_max_abs, vmax=Aspec_max_abs, s=12, marker='s')
         else:
             ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
-
+            
+    cbar = plt.colorbar(ax.collections[0], ax=ax, orientation='vertical')
+    cbar.set_label('Spectrum')
+   
     if plot_fig:
         plt.show()
 
@@ -77,6 +80,10 @@ def plot_average_box(fig, ax, t0, t1, color='white'):
     ax.axvspan(t0.datetime, t1.datetime, linewidth=3,
                edgecolor=color, facecolor='none', clip_on=True)
     #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
+    return fig, ax
+
+def plot_line_at_period(fig, ax, T0, color='black'):
+    ax.axhline(y=T0, color=color, linestyle='--')
     return fig, ax
 
 def plot_touchdown(fig, ax, t0, color='black'):

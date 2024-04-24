@@ -2,7 +2,7 @@ import configparser
 import pickle
 from datetime import datetime
 import os
-
+from obspy.core import UTCDateTime
 
 def load_configuration(filename):
     config = configparser.ConfigParser()
@@ -21,15 +21,27 @@ def read_spectrum2file(filename):
         results, configuration = pickle.load(f)
     return results, configuration
 
-
-
 def get_time_from_index(results, index):
     return results[index][0]
 
+
+
+def get_index_from_time(results, ti):
+    """ti must be in UTCDateTime format"""
+    times = get_times_from_results(results)
+    closest_time = min(times, key=lambda x: abs(x - ti))
+    index = times.index(closest_time)
+    return index
+
+
 def get_times_from_results(results):
     return  [result[0] for result in results]
+
 def get_touchdown_time():
     return datetime(2023,10,25,6,0)
+
+def get_touchdown_UTCDatetime():
+    return UTCDateTime(2023,10,25,6,0)
 
 def save_spectrum2file(results, config):
     times = [t.timestamp for t, _, _ in results]
