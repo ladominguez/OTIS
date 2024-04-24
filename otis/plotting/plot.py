@@ -90,11 +90,14 @@ def plot_touchdown(fig, ax, t0, color='black'):
     ax.axvline(x=t0, color=color, linestyle='--')
     return fig, ax
 
-def save_figure(fig, station, component, resolution=300):
+def save_figure(fig, station, component, resolution=300, demean_plot=False):
 
     file_figure = '_'.join(['spectrum', station, component]) + '.png'
                             #datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
                             #datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.png'
     file_figure = os.path.join('figures',file_figure)
+    if demean_plot:
+        file_figure = file_figure.replace('.png', '_demean.png')
+    
     print('Saving figure to: ', file_figure)
-    fig.savefig(file_figure, dpi=resolution)
+    fig.savefig(file_figure, dpi=resolution, bbox_inches='tight')

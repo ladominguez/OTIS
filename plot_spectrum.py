@@ -1,6 +1,8 @@
 from otis import core
+from matplotlib.ticker import ScalarFormatter
 from otis import tools
 from otis.plotting import plot, tools
+from matplotlib.ticker import FuncFormatter
 import pycpt
 
 import warnings
@@ -8,7 +10,11 @@ import sys
 
 # Ignore all instances of RuntimeWarning
 warnings.filterwarnings('ignore', category=RuntimeWarning)
-demean_plot = False
+demean_plot = True
+
+def rounding(x, pos):
+    'The two args are the value and tick position'
+    return '%ds' % (x)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -38,7 +44,12 @@ if __name__ == '__main__':
     fig, ax = plot.plot_touchdown(fig, ax, core.get_touchdown_time(), color='blue')
     fig, ax = plot.plot_line_at_period(fig, ax, 3, color='red')
 
-    plot.save_figure(fig, station, component)
+    formater = FuncFormatter(rounding)
+    for axis in [ax.yaxis]:
+        axis.set_major_formatter(formater)
+
+    plot.save_figure(fig, station, component, demean_plot=demean_plot)
+
 
 
     #fig, ax = plot_average_box(fig, ax, t0, t1, color = 'green')
