@@ -28,6 +28,8 @@ def get_time_from_index(results, index):
 
 def get_times_from_results(results):
     return  [result[0] for result in results]
+def get_touchdown_time():
+    return datetime(2023,10,25,6,0)
 
 def save_spectrum2file(results, config):
     times = [t.timestamp for t, _, _ in results]
