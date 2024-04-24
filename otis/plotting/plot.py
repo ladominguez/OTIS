@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FixedLocator
 from otis.plotting.tools import get_spectrum_from_results
+from otis import core
 
 
+figure_size = (12, 3)
 
 def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
     """
@@ -42,7 +44,7 @@ def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
     T_max = eval(config['spectrum']['T_max'], {'__builtins__': None}, {})
 
     # create a spectrogram plot using matplotlib
-    fig, ax = plt.subplots(figsize=(12, 7))
+    fig, ax = plt.subplots(figsize=figure_size)
     ax.set_title(station.upper() + ' - ' + component)
     ax.set_xlabel('Time')
     ax.set_ylabel('Period')
@@ -64,7 +66,10 @@ def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
             ax.scatter(t, period, c=spectrum, cmap='seismic', vmin=-Aspec_max_abs, vmax=Aspec_max_abs, s=12, marker='s')
         else:
             ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
-
+            
+    cbar = plt.colorbar(ax.collections[0], ax=ax, orientation='vertical')
+    cbar.set_label('Spectrum')
+   
     if plot_fig:
         plt.show()
 
@@ -77,10 +82,19 @@ def plot_average_box(fig, ax, t0, t1, color='white'):
     #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
     return fig, ax
 
+def plot_line_at_period(fig, ax, T0, color='black'):
+    ax.axhline(y=T0, color=color, linestyle='--')
+    return fig, ax
+
+def plot_touchdown(fig, ax, t0, color='black'):
+    ax.axvline(x=t0, color=color, linestyle='--')
+    return fig, ax
+
 def save_figure(fig, station, component, resolution=300):
 
     file_figure = '_'.join(['spectrum', station, component]) + '.png'
                             #datetime.utcfromtimestamp(min(times)).strftime('%Y-%m-%d_%H:%M:%S'),
                             #datetime.utcfromtimestamp(max(times)).strftime('%Y-%m-%d_%H:%M:%S')]) + '.png'
     file_figure = os.path.join('figures',file_figure)
+    print('Saving figure to: ', file_figure)
     fig.savefig(file_figure, dpi=resolution)
