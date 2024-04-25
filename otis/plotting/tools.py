@@ -37,6 +37,11 @@ def get_spectrum_from_results(results):
 def get_periods_from_results(results):
     return np.array([result[2] for result in results])
 
+def get_index_from_period(results, T0):
+    periods = get_periods_from_results(results)
+    periods = periods[0,:]
+    return np.abs(periods-T0).argmin()
+
 def get_times_from_results(results):
     return np.array([result[0] for result in results])
 

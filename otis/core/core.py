@@ -34,6 +34,7 @@ def get_index_from_time(results, ti):
     return index
 
 
+
 def get_times_from_results(results):
     return  [result[0] for result in results]
 
