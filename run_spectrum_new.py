@@ -1,7 +1,11 @@
 
 
-new = ['ziig']
+new = ['arig', 'daig', 'caig', 'crig', 'meig', 'moig', 'oxig', 'plig', 'pnig', 'pzig', 'ziig']
+new = ['caig']
 components = ['HHZ', 'HHN', 'HHE']
+
+#new = ['arig']
+#components = ['HHZ']
 
 for sta in new:
     for comp in components:

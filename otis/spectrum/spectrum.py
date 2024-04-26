@@ -62,7 +62,7 @@ def get_spectrum_parallel_processing(config, cores=6):
     T_max = eval(config['spectrum']['T_max'], {'__builtins__': None}, {})
     npts = eval(config['spectrum']['npts'], {'__builtins__': None}, {})
     overlap = eval(config['spectrum']['overlap'], {'__builtins__': None}, {})
-    input_file = '/'.join(['data',station,'.'.join([station,component,'sac'])])
+    input_file = '/'.join(['data',station,'.'.join(['IG',station.lower(),component,'corrected.sac'])])
 
 
     print('Reading ' + input_file + ' ...')

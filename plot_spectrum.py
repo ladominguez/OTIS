@@ -19,7 +19,8 @@ def rounding(x, pos):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('Please provide input file as argument')
-        input_file = 'spectra/caig/spectrum_caig_HHZ_2023-10-16_03:50:17_2023-10-26_23:58:32.pkl'
+        #input_file = 'spectra/caig/spectrum_caig_HHZ_2023-10-16_03:50:17_2023-10-26_23:58:32.pkl'
+        input_file = './spectra/pnig/spectrum_pnig_HHZ_2023-10-16_00:10:57_2023-10-20_23:57:57.pkl'
         #sys.exit(1)
     else:
         input_file = sys.argv[1]
@@ -42,7 +43,7 @@ if __name__ == '__main__':
         fig, ax = plot.plot_spectrum(results, config, plot_fig = False, demean_plot=demean_plot)
 
     fig, ax = plot.plot_touchdown(fig, ax, core.get_touchdown_time(), color='blue')
-    fig, ax = plot.plot_line_at_period(fig, ax, 3, color='red')
+    fig, ax = plot.plot_line_at_period(fig, ax, 4, color='red')
 
     formater = FuncFormatter(rounding)
     for axis in [ax.yaxis]:

@@ -31,8 +31,10 @@ def get_average_spectrum(results, index1, index2):
 
     return np.delete(spectrogram[index1:index2], index_remove,0).mean(axis=0)
 
-def get_spectrum_from_results(results):
-    return np.array([result[1] for result in results])
+def get_spectrum_from_results(results, clipping = -15):
+    #return np.array([np.clip(result[1], clipping, None) for result in results])
+    return np.array([np.clip(result[1], clipping, None) for result in results])
+    #return np.array([result[1] for result in results])
 
 def get_periods_from_results(results):
     return np.array([result[2] for result in results])

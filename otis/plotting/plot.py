@@ -5,7 +5,8 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FixedLocator
-from otis.plotting.tools import get_spectrum_from_results
+from datetime import datetime
+#from otis.plotting.tools import get_spectrum_from_results
 from otis import core
 
 
@@ -30,7 +31,8 @@ def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
     if demean_plot:
         spectra = get_spectrum_from_results(results)
     else:
-        spectra = [np.clip(result[1], -1, None) for result in results]
+        spectra = [np.clip(result[1], -15, None) for result in results]
+        #spectra = [result[1] for result in results]
     periods = [result[2] for result in results]
     Aspec_max = max(max(spec) for spec in spectra)
     # The next 3 lines remove the -inf values from the spectra, and then calculate the minimum value
@@ -80,6 +82,14 @@ def plot_average_box(fig, ax, t0, t1, color='white'):
     ax.axvspan(t0.datetime, t1.datetime, linewidth=3,
                edgecolor=color, facecolor='none', clip_on=True)
     #ax.axvspan(t0.datetime, t1.datetime, linewidth=3)
+    return fig, ax
+
+def plot_hurracaine_stages(fig, ax):
+    ax.axvspan(datetime(2023,10,23,3,0), datetime(2023,10,24,9,0), color='green', alpha=0.35) # Tropical storm 
+    ax.axvspan(datetime(2023,10,24,9,0), datetime(2023,10,24,19,0), color='orange', alpha=0.35)
+    ax.axvspan(datetime(2023,10,24,19,0), datetime(2023,10,25,6,0), color='purple', alpha=0.35)
+    ax.axvspan(datetime(2023,10,25,6,0), datetime(2023,10,25,15,0), color='orange', alpha=0.35)
+    ax.axvspan(datetime(2023,10,25,15,0), datetime(2023,10,25,21,0), color='green', alpha=0.35)
     return fig, ax
 
 def plot_line_at_period(fig, ax, T0, color='black'):

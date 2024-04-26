@@ -9,6 +9,7 @@ from matplotlib.pyplot import cm
 
 component = 'HHZ'
 #spectrum_files = glob.glob(os.path.join('spectra', '*ig','spectrum*' + component + '*.pkl'))
+#spectrum_files = glob.glob(os.path.join('spectra', '[a-m]*ig',f'spectrum*{component}_*.pkl'))
 spectrum_files = glob.glob(os.path.join('spectra', '[n-z]*ig',f'spectrum*{component}_*.pkl'))
 spectrum_files.sort()
 
@@ -46,9 +47,9 @@ if __name__ == '__main__':
     ax[0].set_xlabel('Period (s)')
     ax[0].set_ylabel('Amplitude')
     ax[0].set_xlim([2, 10])
-    ax[0].set_ylim([2, 10])
+    #ax[0].set_ylim([2, 10])
     ax[0].set_title(f'Spectrum at touchdown - {component}')
-    ax[0].grid('minor')
+    ax[0].grid('minor', linestyle='--')
     ax[0].legend()
     ax[1].set_xlabel('Period (s)')
     ax[1].set_ylabel('Relative amplitude (x times)')
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     ax[1].axhline(0, color='black', linestyle='--')
     ax[1].set_xlim([2, 10])
     #ax[1].set_ylim([-50, 50])
-    fig.savefig(f'spectrum_at_touchdown_{component}_2.png')
+    fig.savefig(f'spectrum_at_touchdown_{component}_2.png',dpi=500,bbox_inches='tight')
     print(f'Saved spectrum_at_touchdown_{component}_2.png')
     fig.show()
 

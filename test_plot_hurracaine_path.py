@@ -4,15 +4,19 @@ import pandas as pd
 import pygmt
 import ssn
 from scipy.interpolate import interp1d
+#from otis.plotting.plot import plot_hurracaine_stages
 from geopy.distance import great_circle
 from matplotlib.dates import DateFormatter
-
+from datetime import datetime
 
 # Create a DataFrame
 file = 'hurracaine_path.dat'
 file_labels = 'hurracaine_path_labels.tmp'
 trench_file = '/Users/antonio/Dropbox/gmt/trench.gmt'
 TFZ_file = '/Users/antonio/Dropbox/gmt/tecto/tfz.dig'
+GRDDIR='/Users/antonio/Dropbox/MEXICO_GRD/Mexico_Larger'
+CPTFILE='/Users/antonio/Dropbox/BSL/CRSMEX/Presentations/SSA_meeting_2024/map_repeaters/wikifrance_mexico.cpt'
+QUICK=False
 
 trajectory = pd.read_csv(file, delim_whitespace=True, names=['datetime', 'lat', 'lon'], dtype = {'datetime': str, 'lat': float, 'lon': float})
 trajectory['datetime'] = pd.to_datetime(trajectory['datetime'], format='%Y/%m/%dT%H:%M:%S')
@@ -20,7 +24,7 @@ trajectory_labels = pd.read_csv(file_labels, delim_whitespace=True, names=['date
 trajectory_labels['datetime'] = pd.to_datetime(trajectory_labels['datetime'], format='%Y/%m/%dT%H:%M:%S')
 
 plot_map = False
-station = ['CAIG', 'DAIG', 'CRIG', 'ZIIG', 'MEIG', 'ARIG', 'PLIG']
+station = ['CAIG', 'DAIG', 'CRIG', 'ZIIG', 'MEIG', 'ARIG', 'PLIG', 'PZIG','MOIG']
 
 def interpolate_trajectory(trajectory, time_interval=10):
     x = trajectory['lat']
@@ -40,13 +44,19 @@ def plot_map(trajectory_latitutde, trajectory_longitude, save=False):
     ssn_stations = ssn.get_all_stations()
 
     # Set the region and projection
-    region = "-108/-90/10/22"
+    region = "-108/-90/10/21.5"
     projection = "M8i"
     frame= ['WSne','xa4f2','ya2f2']
     fig.basemap(region=region, projection=projection, frame=frame)
 
+    if not QUICK:
+        print('Working on grid')
+        fig.grdimage(grid=GRDDIR+'/MEXICO_LARGER.nc', shading=GRDDIR+'/MEXICO_LARGERi.nc', cmap=CPTFILE,frame=True)
+        print('finished grid')
+
+
     # Plot the map of Mexico
-    fig.coast(land="gray", water="white", shorelines=True, map_scale="jBL+w500k+o0.5c/0.5c+f+u")
+    fig.coast(water="white", shorelines=True, map_scale="jBL+w500k+o0.5c/0.5c+f+u")
     fig.plot(data = trench_file, style="f0.5i/0.10i+l+t", pen="1p,black", fill="gray69")
 
     for row in ssn_stations.itertuples():
@@ -87,11 +97,21 @@ def plot_map(trajectory_latitutde, trajectory_longitude, save=False):
     fig.text(x=-107.4, y=13.20, text='Tropical storm', font='14p,Times-Roman,black',justify='ML')
     fig.text(x=-107.4, y=12.60, text='Hurracaine', font='14p,Times-Roman,black',justify='ML')
     fig.text(x=-107.4, y=12.00, text='Major Hurracaine', font='14p,Times-Roman,black',justify='ML')
+
+    fig.plot(x=-99.88230, y=16.8640, style='c0.3c', pen='1p,black', fill='red')  # Acapulco
+    fig.plot(x=-101.5515, y=17.6418, style='c0.3c', pen='1p,black', fill='green') # Zihuatanejo
+    fig.plot(x=-96.49130, y=15.668, style='c0.3c', pen='1p,black', fill='blue') # Puerto Angel
+
+    fig.text(x=-99.88230, y=16.8640, text='Acapulco', font='8p,Times-Bold,black',justify='BL',    offset='0.2c')
+    fig.text(x=-101.5515, y=17.6418, text='Zihuatanejo', font='8p,Times-Bold,black',justify='BL', offset='0.2c')
+    fig.text(x=-96.49130, y=15.668, text='Puerto Angel', font='8p,Times-Bold,black',justify='BL', offset='-0.3c/-0.3c')
+    
+    
     
     
     
     if save:
-        fig.savefig('hurracaine_path.png', dpi=300)
+        fig.savefig('hurracaine_path.png', dpi=400)
         print('Saving figure hurracaine_path.png')
     else:   
         fig.show()
@@ -115,6 +135,12 @@ def plot_trajectory(trajectory_latitutde, trajectory_longitude, times, stations,
         ax.plot(times_datetime, distance, label=station,linewidth = 5, alpha = 0.5)
 
     date_form = DateFormatter("%b-%d, %H:%M")
+    #fig, ax = plot_hurracaine_stages(fig, ax) TODO
+    ax.axvspan(datetime(2023,10,23,3,0), datetime(2023,10,24,9,0), color='green', alpha=0.15) # Tropical storm 
+    ax.axvspan(datetime(2023,10,24,9,0), datetime(2023,10,24,19,0), color='orange', alpha=0.15)
+    ax.axvspan(datetime(2023,10,24,19,0), datetime(2023,10,25,6,0), color='purple', alpha=0.15)
+    ax.axvspan(datetime(2023,10,25,6,0), datetime(2023,10,25,15,0), color='orange', alpha=0.15)
+    ax.axvspan(datetime(2023,10,25,15,0), datetime(2023,10,25,21,0), color='green', alpha=0.15) # Tropical storm
     ax.set_xlabel('Time')
     ax.set_ylabel('Distance [km]')
     ax.set_title('Distance to station', fontname='Times New Roman')
@@ -136,6 +162,6 @@ def plot_trajectory(trajectory_latitutde, trajectory_longitude, times, stations,
 if __name__ == '__main__':
     
     trajectory_latitutde, trajectory_longitude, times_trajectory = interpolate_trajectory(trajectory,100)
-    plot_map(trajectory_latitutde, trajectory_longitude, save=True)
-    #plot_trajectory(trajectory_latitutde, trajectory_longitude, times_trajectory, station, save=True)
+    #plot_map(trajectory_latitutde, trajectory_longitude, save=True)
+    plot_trajectory(trajectory_latitutde, trajectory_longitude, times_trajectory, station, save=True)
     
