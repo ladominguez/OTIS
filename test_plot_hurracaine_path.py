@@ -24,7 +24,7 @@ trajectory_labels = pd.read_csv(file_labels, delim_whitespace=True, names=['date
 trajectory_labels['datetime'] = pd.to_datetime(trajectory_labels['datetime'], format='%Y/%m/%dT%H:%M:%S')
 
 plot_map = False
-station = ['CAIG', 'DAIG', 'CRIG', 'ZIIG', 'MEIG', 'ARIG', 'PLIG', 'PZIG','MOIG']
+station = ['CAIG', 'DAIG', 'CRIG', 'ZIIG', 'MEIG', 'ARIG', 'PLIG', 'PZIG','MOIG', 'OXIG']
 
 def interpolate_trajectory(trajectory, time_interval=10):
     x = trajectory['lat']

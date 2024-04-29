@@ -11,8 +11,9 @@ from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FixedLocator
 from datetime import datetime
 
-component = 'HHN'
+component = 'HHZ'
 T0 = 4 
+suffix='2'
 #spectrum_files = glob.glob(os.path.join('spectra', '*ig','spectrum*' + component + '*.pkl'))
 #spectrum_files = glob.glob(os.path.join('spectra', '[a-m]?ig',f'spectrum*{component}_*.pkl'))
 spectrum_files = glob.glob(os.path.join('spectra', '[n-z]?ig',f'spectrum*{component}_*.pkl'))
@@ -68,9 +69,6 @@ if __name__ == '__main__':
     #ax.axvspan(datetime(2023,10,25,6,0), datetime(2023,10,25,15,0), color='orange', alpha=0.35)
     #ax.axvspan(datetime(2023,10,25,15,0), datetime(2023,10,25,21,0), color='green', alpha=0.35) # Tropical storm 
 
-    fig.savefig(f'spectrum_at_period_{T0}s_{component}.png', bbox_inches='tight')
-    print(f'Saved spectrum_at_period_{T0}a_{component}.png')
-    fig.show()
-
-    
-        
+    fig.savefig(f'spectrum_at_period_{T0}s_{component}_{suffix}.png', bbox_inches='tight')
+    print(f'Saved spectrum_at_period_{T0}a_{component}_{suffix}.png')
+    #fig.show()

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FixedLocator
 from datetime import datetime
-#from otis.plotting.tools import get_spectrum_from_results
+from otis.plotting.tools import get_spectrum_from_results
 from otis import core
 
 

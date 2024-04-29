@@ -1,7 +1,7 @@
 
 
 new = ['arig', 'daig', 'caig', 'crig', 'meig', 'moig', 'oxig', 'plig', 'pnig', 'pzig', 'ziig']
-new = ['caig']
+new = ['daig']
 components = ['HHZ', 'HHN', 'HHE']
 
 #new = ['arig']

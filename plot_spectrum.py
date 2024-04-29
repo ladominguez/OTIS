@@ -1,4 +1,5 @@
 from otis import core
+from otis.plotting.tools import get_spectrum_from_results
 from matplotlib.ticker import ScalarFormatter
 from otis import tools
 from otis.plotting import plot, tools
