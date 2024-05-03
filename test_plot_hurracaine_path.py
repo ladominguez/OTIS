@@ -26,6 +26,9 @@ trajectory_labels['datetime'] = pd.to_datetime(trajectory_labels['datetime'], fo
 plot_map = False
 station = ['CAIG', 'DAIG', 'CRIG', 'ZIIG', 'MEIG', 'ARIG', 'PLIG', 'PZIG','MOIG', 'OXIG']
 
+prop_cycle = plt.rcParams['axes.prop_cycle']
+color_cycle = iter(prop_cycle.by_key()['color'])
+
 def interpolate_trajectory(trajectory, time_interval=10):
     x = trajectory['lat']
     y = trajectory['lon']
@@ -132,7 +135,9 @@ def plot_trajectory(trajectory_latitutde, trajectory_longitude, times, stations,
             distance.append(great_circle((lat, lon), (lat_station, lon_station)).kilometers)
 
         times_datetime = pd.to_datetime(times, unit='s')
-        ax.plot(times_datetime, distance, label=station,linewidth = 5, alpha = 0.5)
+        cc = next(color_cycle)
+        ax.plot(times_datetime, distance, color = cc, label=station,linewidth = 5, alpha = 0.5)
+        ax.plot(times_datetime, distance, color = cc, label='_Hidden',linewidth = 1)
 
     date_form = DateFormatter("%b-%d, %H:%M")
     #fig, ax = plot_hurracaine_stages(fig, ax) TODO
