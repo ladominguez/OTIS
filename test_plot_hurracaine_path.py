@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pygmt
+import os 
+import glob
 import ssn
 from scipy.interpolate import interp1d
 #from otis.plotting.plot import plot_hurracaine_stages
@@ -13,6 +15,13 @@ from datetime import datetime
 file = 'hurracaine_path.dat'
 file_labels = 'hurracaine_path_labels.tmp'
 trench_file = '/Users/antonio/Dropbox/gmt/trench.gmt'
+iso_line_20km = '/Users/antonio/Dropbox/Slab2.0/isoline20.txt'
+iso_line_40km = '/Users/antonio/Dropbox/Slab2.0/isoline40.txt'
+iso_line_60km = '/Users/antonio/Dropbox/Slab2.0/isoline60.txt'
+iso_line_80km = '/Users/antonio/Dropbox/Slab2.0/isoline80.txt'
+iso_line_100km = '/Users/antonio/Dropbox/Slab2.0/isoline100.txt'
+iso_line_120km = '/Users/antonio/Dropbox/Slab2.0/isoline120.txt'
+
 TFZ_file = '/Users/antonio/Dropbox/gmt/tecto/tfz.dig'
 GRDDIR='/Users/antonio/Dropbox/MEXICO_GRD/Mexico_Larger'
 CPTFILE='/Users/antonio/Dropbox/BSL/CRSMEX/Presentations/SSA_meeting_2024/map_repeaters/wikifrance_mexico.cpt'
@@ -24,10 +33,13 @@ trajectory_labels = pd.read_csv(file_labels, delim_whitespace=True, names=['date
 trajectory_labels['datetime'] = pd.to_datetime(trajectory_labels['datetime'], format='%Y/%m/%dT%H:%M:%S')
 
 plot_map = False
-station = ['CAIG', 'DAIG', 'CRIG', 'ZIIG', 'MEIG', 'ARIG', 'PLIG', 'PZIG','MOIG', 'OXIG']
+#station = ['CAIG', 'DAIG', 'CRIG', 'ZIIG', 'MEIG', 'ARIG', 'PLIG', 'PZIG','MOIG', 'OXIG']
 
 prop_cycle = plt.rcParams['axes.prop_cycle']
 color_cycle = iter(prop_cycle.by_key()['color'])
+
+def get_list_of_stations():
+    return [sta.split('/')[1].upper() for sta in glob.glob(os.path.join('spectra','*ig'))]
 
 def interpolate_trajectory(trajectory, time_interval=10):
     x = trajectory['lat']
@@ -45,7 +57,7 @@ def plot_map(trajectory_latitutde, trajectory_longitude, save=False):
     # Create a figure and an axis
     fig = pygmt.Figure()
     ssn_stations = ssn.get_all_stations()
-
+    ssn_stations_filtered = ssn_stations[ssn_stations['stnm'].isin(station)]
     # Set the region and projection
     region = "-108/-90/10/21.5"
     projection = "M8i"
@@ -61,8 +73,15 @@ def plot_map(trajectory_latitutde, trajectory_longitude, save=False):
     # Plot the map of Mexico
     fig.coast(water="white", shorelines=True, map_scale="jBL+w500k+o0.5c/0.5c+f+u")
     fig.plot(data = trench_file, style="f0.5i/0.10i+l+t", pen="1p,black", fill="gray69")
+    fig.plot(data = iso_line_20km, pen="0.5p,black,--", transparency=50)
+    fig.plot(data = iso_line_40km, pen="0.5p,black,--", transparency=50)
+    fig.plot(data = iso_line_80km, pen="0.5p,black,--", transparency=50)
+    fig.plot(data = iso_line_100km, pen="0.5p,black,--", transparency=50)
+    fig.plot(data = iso_line_120km, pen="0.5p,black,--", transparency=50)
 
-    for row in ssn_stations.itertuples():
+
+
+    for row in ssn_stations_filtered.itertuples():
         fig.text(x=row.longitude, y=row.latitude+0.2, text=row.stnm, font='7p,Times-Bold,blue')
         if row.stnm in station:
             fig.plot(x=row.longitude, y=row.latitude, style='t0.3c', pen='1p', fill='red', label=row.stnm)
@@ -165,8 +184,8 @@ def plot_trajectory(trajectory_latitutde, trajectory_longitude, times, stations,
 
     
 if __name__ == '__main__':
-    
+    station = get_list_of_stations()
     trajectory_latitutde, trajectory_longitude, times_trajectory = interpolate_trajectory(trajectory,100)
-    #plot_map(trajectory_latitutde, trajectory_longitude, save=True)
-    plot_trajectory(trajectory_latitutde, trajectory_longitude, times_trajectory, station, save=True)
+    plot_map(trajectory_latitutde, trajectory_longitude, save=True)
+    #plot_trajectory(trajectory_latitutde, trajectory_longitude, times_trajectory, station, save=True)
     
