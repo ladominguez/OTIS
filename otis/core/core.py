@@ -24,7 +24,8 @@ def read_spectrum2file(filename):
 def get_time_from_index(results, index):
     return results[index][0]
 
-
+def get_touchdown_coordinates():
+    return (16.69823, -99.79307)
 
 def get_index_from_time(results, ti):
     """ti must be in UTCDateTime format"""
@@ -37,6 +38,9 @@ def get_index_from_time(results, ti):
 
 def get_times_from_results(results):
     return  [result[0] for result in results]
+
+def get_times_from_results_datetime(results):
+    return  [result[0].datetime for result in results]
 
 def get_touchdown_time():
     return datetime(2023,10,25,6,0)
