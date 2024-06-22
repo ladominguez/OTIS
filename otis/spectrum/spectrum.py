@@ -1,4 +1,3 @@
-from mtspec import mtspec
 import numpy as np
 from obspy.core import read
 import time
@@ -31,6 +30,7 @@ def downsample_array(arr, factor):
     return downsampled_arr
 
 def get_spectrum(data, npts, T_min, T_max):
+    from mtspec import mtspec
     #npts = 2**16
     delta = round(data.stats.delta * 100) / 100
     span_sec = data.stats.endtime - data.stats.starttime
