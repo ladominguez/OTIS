@@ -6,13 +6,16 @@ import pandas as pd
 import glob
 from otis import core
 from otis.plotting.tools import get_spectrum_from_results, get_periods_from_results, get_average_spectrum
+from otis.plotting.plot import plot_map
 from matplotlib.pyplot import cm
 from geopy.distance import great_circle
 from ssn import get_station_by_name
 
-components = 'HHN'
-spectrum_files = glob.glob(os.path.join('spectra', '??ig','spectrum*' + component + '*.pkl'))
-spectrum_files.sort()
+components = ['HHZ']
+CPT_max_value = './cpt/max_values_hot.cpt'
+CPT_max_value_relative = './cpt/max_values_relative_hot.cpt'
+CPT_azimuth = './cpt/azimuth.cpt'
+CPT_distance = './cpt/distance.cpt'
 
 def calculate_bearing(point1, point2):
     lat1, lon1 = point1
@@ -27,9 +30,9 @@ def calculate_bearing(point1, point2):
     bearing = np.degrees(np.arctan2(y, x))
     bearing = (bearing + 360) % 360
     return bearing
-
-if __name__ == '__main__':
-    df = pd.DataFrame(columns=['station', 'component', 'period', 'max_value', 'distance_to_touchdown', 
+def get_datafame(saving = False, filename = 'data/summary_data.pkl'):
+    df = pd.DataFrame(columns=['station', 'component', 'stla', 'stlo', 'period', 'max_value', 
+                               'max_value_relative', 'period_max_relative', 'distance_to_touchdown', 
                                'azimuth'])
     lat_touchdown, lon_touchdown = core.get_touchdown_coordinates()
 
@@ -50,16 +53,67 @@ if __name__ == '__main__':
             periods_at_touchdown = periods[t_touchdown_index,:]
             max_value = np.max(spectrum_at_touchdown)
             max_value_index = np.argmax(spectrum_at_touchdown)
+            average_spectrum = get_average_spectrum(results, 20, 240)
+            relative_spectrum = (10**spectrum_at_touchdown-10**average_spectrum) / 10**average_spectrum
+            max_value_relative = np.max(relative_spectrum)
+            max_value_relative_index = np.argmax(relative_spectrum)
+
             distance_to_touchdown = great_circle((stla, stlo), (lat_touchdown, lon_touchdown)).kilometers
             azimuth = calculate_bearing((lat_touchdown, lon_touchdown), (stla, stlo) )
-            print('coordinates:', stla, stlo, ' touchdown: ', lat_touchdown, lon_touchdown, 'distance to touchdown:', distance_to_touchdown, 'azimuth:', azimuth)
-            print('Maximum value:', max_value, ' at period:', periods_at_touchdown[max_value_index], ' for station ', station )
-            df.loc[len(df)] = [station, component, periods_at_touchdown[max_value_index], max_value, distance_to_touchdown,
+            df.loc[len(df)] = [station, component, stla, stlo, periods_at_touchdown[max_value_index], max_value, 
+                               max_value_relative, periods_at_touchdown[max_value_relative_index], distance_to_touchdown,
                            azimuth]
+            
+    if saving:
+        print('Saving data to:', filename)
+        df.to_pickle(filename)
+    
+    return df
+
+def read_summary_data(filename = 'data/summary_data.pkl'):
+    return pd.read_pickle(filename)
+
+def plot_data(fig, df, field='max_value_relative'):
+    # Run using conda enviroment pygmt 
+    for _, row in df.iterrows():
+        station = row['station'].upper()
+        component = row['component']
+        stla = row['stla']
+        stlo = row['stlo']
+        period = row['period']
+        max_value = row['max_value_relative']
+        max_value_relative = row['max_value_relative']
+        distance_to_touchdown = row['distance_to_touchdown']
+        azimuth = row['azimuth']
+        match field:
+            case 'max_value':
+                fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_max_value, zvalue=max_value, fill="+z")
+            case 'max_value_relative':
+                fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_max_value_relative, zvalue=max_value_relative, fill="+z")
+            case 'distance_to_touchdown':
+                fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_distance, zvalue=distance_to_touchdown, fill="+z")
+            case 'azimuth':
+                fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_azimuth, zvalue=azimuth, fill="+z")
+            case _:
+                fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT, zvalue=max_value, fill="+z")
+    match field:
+        case 'max_value':
+            fig.colorbar(cmap=CPT_max_value, position="jBL+o0.15i/0.5i+w1.5i/0.10i+h", frame=["xa0.5fa0.25+lMagnitude"])
+
+    return fig
+
+if __name__ == '__main__':
+
         #plt.plot(periods_at_touchdown, spectrum_at_touchdown, label=os.path.basename(file))
         #plt.plot(periods_at_touchdown[max_value_index], max_value, 'ro')
-        plt.scatter(df['distance'], df['max_value'], c=df['max_value'], cmap='viridis')
-        print(df)
-        plt.xscale('log')
-        plt.yscale('log')
+        #plt.scatter(df['distance'], df['max_value'], c=df['max_value'], cmap='viridis')
+        #plt.xscale('log')
+        #plt.yscale('log')
+    #df = get_datafame(saving=True)
+    df = read_summary_data()
+    print(df)
+
+    fig = plot_map(quick=False, isolines=True)
+    fig = plot_data(fig, df)
+    fig.show()
     

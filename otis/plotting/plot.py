@@ -10,6 +10,18 @@ from otis.plotting.tools import get_spectrum_from_results
 from otis import core
 
 
+
+
+GRDDIR='/Users/antonio/Dropbox/MEXICO_GRD/Mexico_All'
+trench_file = '/Users/antonio/Dropbox/gmt/trench.gmt'
+iso_line_20km = '/Users/antonio/Dropbox/Slab2.0/isoline20.txt'
+iso_line_40km = '/Users/antonio/Dropbox/Slab2.0/isoline40.txt'
+iso_line_60km = '/Users/antonio/Dropbox/Slab2.0/isoline60.txt'
+iso_line_80km = '/Users/antonio/Dropbox/Slab2.0/isoline80.txt'
+iso_line_100km = '/Users/antonio/Dropbox/Slab2.0/isoline100.txt'
+iso_line_120km = '/Users/antonio/Dropbox/Slab2.0/isoline120.txt'
+CPTFILE='/Users/antonio/Dropbox/BSL/CRSMEX/Presentations/SSA_meeting_2024/map_repeaters/wikifrance_mexico.cpt'
+
 figure_size = (12, 3)
 
 def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
@@ -91,6 +103,38 @@ def plot_hurracaine_stages(fig, ax):
     ax.axvspan(datetime(2023,10,25,6,0), datetime(2023,10,25,15,0), color='orange', alpha=0.35)
     ax.axvspan(datetime(2023,10,25,15,0), datetime(2023,10,25,21,0), color='green', alpha=0.35)
     return fig, ax
+
+def plot_map(quick=True, isolines=False, closeup = True):
+    import pygmt
+    fig = pygmt.Figure()
+    if closeup:
+        region = "-108/-90/14/31.5"
+    else:
+        region = "-108/-90/10/21.5"
+
+    projection = "M8i"
+    frame= ['WSne','xa4f2','ya2f2']
+    fig.basemap(region=region, projection=projection, frame=frame)
+
+    if not quick:
+        print('Working on grid')
+        fig.grdimage(grid=GRDDIR+'/MEXICO_ALL.nc', shading=GRDDIR+'/MEXICO_ALLi.nc', cmap=CPTFILE,frame=True)
+        print('finished grid')
+
+    fig.coast(water="white", shorelines=True, map_scale="jBL+w500k+o0.5c/0.5c+f+u")
+    fig.plot(data = trench_file, style="f0.5i/0.10i+l+t", pen="1p,black", fill='gray50')
+    #fig.plot(x=-107.6, y=16.60, fill='red',style='c0.35c', pen='2p,black')
+
+    if isolines:
+        fig.plot(data = iso_line_20km, pen="0.5p,black,--", transparency=50)
+        fig.plot(data = iso_line_40km, pen="0.5p,black,--", transparency=50)
+        fig.plot(data = iso_line_80km, pen="0.5p,black,--", transparency=50)
+        fig.plot(data = iso_line_100km, pen="0.5p,black,--", transparency=50)
+        fig.plot(data = iso_line_120km, pen="0.5p,black,--", transparency=50)
+
+
+    return fig
+
 
 def plot_line_at_period(fig, ax, T0, color='black'):
     ax.axhline(y=T0, color=color, linestyle='--')
