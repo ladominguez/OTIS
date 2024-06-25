@@ -11,7 +11,7 @@ import sys
 
 # Ignore all instances of RuntimeWarning
 warnings.filterwarnings('ignore', category=RuntimeWarning)
-demean_plot = True
+demean_plot = False
 
 def rounding(x, pos):
     'The two args are the value and tick position'
@@ -42,6 +42,7 @@ if __name__ == '__main__':
         fig, ax = plot.plot_average_box(fig, ax, t0, t1, color='black')
     else:
         fig, ax = plot.plot_spectrum(results, config, plot_fig = False, demean_plot=demean_plot)
+        fig, ax = plot.plot_average_box(fig, ax, t0, t1, color='white')
 
     fig, ax = plot.plot_touchdown(fig, ax, core.get_touchdown_time(), color='blue')
     fig, ax = plot.plot_line_at_period(fig, ax, 4, color='red')

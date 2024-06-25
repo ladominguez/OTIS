@@ -12,10 +12,14 @@ from geopy.distance import great_circle
 from ssn import get_station_by_name
 
 components = ['HHZ']
-CPT_max_value = './cpt/max_values_hot.cpt'
+CPT_max_value = './cpt/max_values_red2green.cpt'
 CPT_max_value_relative = './cpt/max_values_relative_hot.cpt'
 CPT_azimuth = './cpt/azimuth.cpt'
 CPT_distance = './cpt/distance.cpt'
+CPT_period_max_relative = './cpt/period_max_relative.cpt'
+
+field = 'max_value_relative'
+isolines = True
 
 def calculate_bearing(point1, point2):
     lat1, lon1 = point1
@@ -73,20 +77,23 @@ def get_datafame(saving = False, filename = 'data/summary_data.pkl'):
 def read_summary_data(filename = 'data/summary_data.pkl'):
     return pd.read_pickle(filename)
 
-def plot_data(fig, df, field='max_value_relative'):
+def plot_data(fig, df, field='max_value_relative', station_labels = False):
     # Run using conda enviroment pygmt 
     for _, row in df.iterrows():
         station = row['station'].upper()
         component = row['component']
         stla = row['stla']
         stlo = row['stlo']
-        period = row['period']
-        max_value = row['max_value_relative']
+        period_max_relative = row['period_max_relative']
+        max_value = row['max_value']
         max_value_relative = row['max_value_relative']
         distance_to_touchdown = row['distance_to_touchdown']
         azimuth = row['azimuth']
+        if station_labels:
+            fig.text(x=stlo, y=stla, text=station, font='8p,Times-Roman,black', justify='LM', offset='0.2c')
         match field:
             case 'max_value':
+                print('max_value: ', max_value)
                 fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_max_value, zvalue=max_value, fill="+z")
             case 'max_value_relative':
                 fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_max_value_relative, zvalue=max_value_relative, fill="+z")
@@ -94,11 +101,19 @@ def plot_data(fig, df, field='max_value_relative'):
                 fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_distance, zvalue=distance_to_touchdown, fill="+z")
             case 'azimuth':
                 fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_azimuth, zvalue=azimuth, fill="+z")
+            case 'period_max_relative':
+                fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT_period_max_relative, zvalue=period_max_relative, fill="+z")
             case _:
-                fig.plot(x=stlo, y=stla, style='c0.35c', pen='1p,black',cmap=CPT, zvalue=max_value, fill="+z")
+                raise ValueError(f'Field {field} not recognized')
     match field:
         case 'max_value':
-            fig.colorbar(cmap=CPT_max_value, position="jBL+o0.15i/0.5i+w1.5i/0.10i+h", frame=["xa0.5fa0.25+lMagnitude"])
+            fig.colorbar(cmap=CPT_max_value, position="jBL+o0.15i/1.0i+w1.5i/0.10i+h", frame=["xa2fa1+lMax value (dB)"])
+        case 'max_value_relative':
+            fig.colorbar(cmap=CPT_max_value_relative, position="jBL+o0.32i/1.0i+w1.8i/0.10i+h", frame=["xa100fa50+lTimes relative to average"])
+        case 'period_max_relative':
+            fig.colorbar(cmap=CPT_period_max_relative, position="jBL+o0.32i/1.0i+w1.8i/0.10i+h", frame=["xa0.5f0.25+lPeriod (s)"])
+        case '_':
+            pass
 
     return fig
 
@@ -113,7 +128,13 @@ if __name__ == '__main__':
     df = read_summary_data()
     print(df)
 
-    fig = plot_map(quick=False, isolines=True)
-    fig = plot_data(fig, df)
-    fig.show()
-    
+    fig = plot_map(quick=False, isolines=isolines, tmvb=True)
+    fig = plot_data(fig, df, field=field, station_labels=True)
+    #fig.text(x=0.5, y=0.95, text=f"{field.capitalize()} - {components}")
+    if isolines:
+        filename_out = f'figures/map/map_{field}_{components[0]}.png'
+    else:
+        filename_out = f'figures/map/map_{field}_{components[0]}_no_isolines.png'
+    print('Saving figure to:', filename_out)
+    fig.savefig(filename_out, dpi=300)
+    pass

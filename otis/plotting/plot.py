@@ -82,7 +82,7 @@ def plot_spectrum(results, config, plot_fig=True, demean_plot=False):
             ax.scatter(t, period, c=spectrum, cmap='hot', vmin=Aspec_min, vmax=Aspec_max, s=12, marker='s')
             
     cbar = plt.colorbar(ax.collections[0], ax=ax, orientation='vertical')
-    cbar.set_label('Spectrum')
+    cbar.set_label(r'Amplitud $[m^2/s^4/Hz] [dB]$')
    
     if plot_fig:
         plt.show()
@@ -104,7 +104,7 @@ def plot_hurracaine_stages(fig, ax):
     ax.axvspan(datetime(2023,10,25,15,0), datetime(2023,10,25,21,0), color='green', alpha=0.35)
     return fig, ax
 
-def plot_map(quick=True, isolines=False, closeup = True):
+def plot_map(quick=True, isolines=False, closeup = True, tmvb=False):
     import pygmt
     fig = pygmt.Figure()
     if closeup:
@@ -121,16 +121,19 @@ def plot_map(quick=True, isolines=False, closeup = True):
         fig.grdimage(grid=GRDDIR+'/MEXICO_ALL.nc', shading=GRDDIR+'/MEXICO_ALLi.nc', cmap=CPTFILE,frame=True)
         print('finished grid')
 
-    fig.coast(water="white", shorelines=True, map_scale="jBL+w500k+o0.5c/0.5c+f+u")
+    fig.coast(water="lightblue", shorelines=True, map_scale="jBL+w500k+o0.5c/0.5c+f+u")
     fig.plot(data = trench_file, style="f0.5i/0.10i+l+t", pen="1p,black", fill='gray50')
     #fig.plot(x=-107.6, y=16.60, fill='red',style='c0.35c', pen='2p,black')
 
     if isolines:
-        fig.plot(data = iso_line_20km, pen="0.5p,black,--", transparency=50)
-        fig.plot(data = iso_line_40km, pen="0.5p,black,--", transparency=50)
-        fig.plot(data = iso_line_80km, pen="0.5p,black,--", transparency=50)
-        fig.plot(data = iso_line_100km, pen="0.5p,black,--", transparency=50)
-        fig.plot(data = iso_line_120km, pen="0.5p,black,--", transparency=50)
+        fig.plot(data = iso_line_20km, pen="0.75p,black,--", transparency=50)
+        fig.plot(data = iso_line_40km, pen="0.75p,black,--", transparency=50)
+        fig.plot(data = iso_line_80km, pen="0.75p,black,--", transparency=50)
+        fig.plot(data = iso_line_100km, pen="0.75p,black,--", transparency=50)
+        fig.plot(data = iso_line_120km, pen="0.75p,black,--", transparency=50)
+    
+    if tmvb:
+        fig.plot(data='/Users/antonio/Dropbox/gmt/tecto/tmvb.d',pen ="1p,black", close=True, transparency=50, fill='gray75')
 
 
     return fig

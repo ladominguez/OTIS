@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from datetime import datetime
 
 component = 'HHZ'
-stations = ['PZIG', 'OXIG']
+stations = ['CAIG', 'PZIG']
 T0 = 4.0
 
 t_xaxis_min = datetime(2023, 10, 24)
@@ -34,5 +34,8 @@ if __name__ == '__main__':
         ax.plot(times, spectrum_at_T0, label=station)
         ax.legend()
         ax.set_xlim([t_xaxis_min, t_xaxis_max])
+        filename_out = 'compare_' + '_'.join(stations) + '.png'
+        fig.savefig(filename_out, dpi=400)
+        print(f'Saved in {filename_out}')
 
         
