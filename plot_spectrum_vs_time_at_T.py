@@ -11,11 +11,13 @@ from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FixedLocator
 from datetime import datetime
 from matplotlib.ticker import FormatStrFormatter
+from geopy.distance import great_circle
+from ssn import get_station_by_name
 
 component = 'HHZ'
 T0 = 4 
 #suffix='2'
-stations = ['CAIG', 'ZIIG', 'DAIG', 'CRIG']
+stations = [  'CAIG', 'MEIG', 'PLIG', 'PZIG']
 for k, station in enumerate(stations):
     if k == 0:
         spectrum_files  = glob.glob(os.path.join('spectra', station.lower(),'spectrum*' + component + '*.pkl'))
@@ -51,6 +53,10 @@ if __name__ == '__main__':
 
         spectrum_at_T0 = spectrum[:,ind_T0]
 
+        lat_touchdown, lon_touchdown = core.get_touchdown_coordinates()
+        stla, stlo = get_station_by_name(station)
+        distance_to_touchdown = great_circle((stla, stlo), (lat_touchdown, lon_touchdown)).kilometers
+
         if k == 0:
         #if True:
             fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(16, 6), squeeze=True)
@@ -73,7 +79,7 @@ if __name__ == '__main__':
             fig, ax = plot_hurracaine_stages(fig, ax)
 
 
-        ax.plot(times, spectrum_at_T0, c=c, linewidth=1, label = stations[k].upper())
+        ax.plot(times, spectrum_at_T0, c=c, linewidth=1, label =f'{stations[k].upper()} ({distance_to_touchdown:.0f}km)')
      
         t_touch = core.get_touchdown_time() 
         ax.axvline(t_touch, color='black', linestyle='--')
